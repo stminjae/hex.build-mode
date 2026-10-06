@@ -1,9 +1,9 @@
 schemaVersion: 3
 meta:
-  sourceVersionId: 01a10921-7a46-758d-8f81-cc4b71f51715 # DO NOT CHANGE - Hex uses this to match up project versions when reimporting the file
+  sourceVersionId: 01a10f63-eb5a-76c3-a85f-e1d64e0dcebb # DO NOT CHANGE - Hex uses this to match up project versions when reimporting the file
   description: Customers make Superstore a super store
   projectId: 01a0f9d4-f295-71ce-b94f-dbd3a78c293f # DO NOT CHANGE - Unique ID of the project from which this file was generated
-  title: Know thy customers💰
+  title: How to Build Customer Loyalty @Superstore 🛒
   timezone: null
   appTheme: SYS_PREF
   codeLanguage: PYTHON
@@ -35,15 +35,7 @@ cells:
     cellLabel: Presentation brief
     config:
       source: |-
-        # Presentation brief
-
-        - **Audience:** Sales and marketing executives
-        - **Format:** Short presentation, plus an app for anyone who wants to dig deeper
-        - **Style:** Simple, plain language, business-focused
-
-        ## Goals
-        1. Show that customer loyalty is worth investing in, because there's money to be made.
-        2. Briefly explain how loyalty was defined and what drives it.
+        # Presentation Brief 🪄
 
         ## What this notebook looks at
         - **Loyalty threshold:** how many orders make a customer "loyal"
@@ -56,37 +48,80 @@ cells:
         - **First purchase by market:** whether the first-purchase effect differs by market
         - **Share of business:** how much revenue loyal customers drive
 
-        ## Definitions
-        | Tier | Orders |
-        |---|---|
-        | One-time | 1 |
-        | Occasional | 2–3 |
-        | Regular | 4–6 |
-        | Loyal | 7+ |
-
-        Loyalty is never driven by discounts in this analysis.
+        ⚠️ Please note: Loyalty is never driven by discounts in this analysis
+  - cellType: TEXT
+    cellId: 01a10f42-8778-77fc-a13b-9bcab3b1f21f # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h1
+          children:
+            - text: Global Inputs 🌐
   - cellType: INPUT
     cellId: 01a102fe-bec2-76ba-9aaa-a60a8f24ac81 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Orders needed to count as loyal
+    cellLabel: Loyalty threshold (# of orders)
     config:
       inputType: SLIDER
-      name: minimum_orders
+      name: loyal_order_threshold
       outputType: NUMBER
       options:
         min: 2
         max: 12
         step: 1
       defaultValue: 7
+  - cellType: INPUT
+    cellId: 01a1086b-420b-70e8-bc12-99eb6a7fedaa # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Year
+    config:
+      inputType: DROPDOWN
+      name: order_year
+      outputType: STRING
+      options:
+        valueOptions:
+          - All
+          - "2011"
+          - "2012"
+          - "2013"
+          - "2014"
+        optional: true
+      defaultValue: All
+  - cellType: INPUT
+    cellId: 01a10506-86b9-72e4-bdfb-50b6b42a2f23 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Market
+    config:
+      inputType: DROPDOWN
+      name: market
+      outputType: STRING
+      options:
+        valueOptions:
+          - APAC
+          - LATAM
+          - EU
+          - US
+          - EMEA
+          - Africa
+          - Canada
+          - All
+        optional: true
+      defaultValue: All
+  - cellType: TEXT
+    cellId: 01a10f43-1cd6-74c1-838c-77a05033e29d # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h1
+          children:
+            - text: Foundations
   - cellType: SQL
     cellId: 01a0fab6-8084-71ca-81d4-780141c83469 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Realias column name and define raw dataframe
+    cellLabel: Superstore sales (one row per product on an order)
     config:
       source: |-
         SELECT * RENAME (column00 AS line_id)
         FROM "superstore.csv"; 
       dataFrameCell: true
       dataConnectionId: null
-      resultVariableName: raw
+      resultVariableName: superstore_sales
       useRichDisplay: true
       enablePreview: true
       sqlCellOutputType: PANDAS
@@ -158,6 +193,11 @@ cells:
             size: 120
             wrapText: null
             displayFormat: null
+          - originalName: order_priority
+            renameTo: null
+            size: 125
+            wrapText: null
+            displayFormat: null
           - originalName: postal_code
             renameTo: null
             size: 120
@@ -213,6 +253,11 @@ cells:
             size: 120
             wrapText: null
             displayFormat: null
+          - originalName: shipping_cost
+            renameTo: null
+            size: 127
+            wrapText: null
+            displayFormat: null
           - originalName: state
             renameTo: null
             size: 120
@@ -245,11 +290,11 @@ cells:
             ,product_id
             ,quantity
             ,sales 
-        FROM raw 
+        FROM superstore_sales 
         WHERE customer_id = 'BS-1800'
       dataFrameCell: true
       dataConnectionId: null
-      resultVariableName: dataframe_4
+      resultVariableName: customer_order_history
       useRichDisplay: true
       enablePreview: true
       sqlCellOutputType: PANDAS
@@ -338,13 +383,13 @@ cells:
             order_id
             ,COUNT(DISTINCT customer_id) AS customer_count
             ,STRING_AGG(DISTINCT customer_id, ',') AS customer_ids
-        FROM raw 
+        FROM superstore_sales 
         GROUP BY 1
         HAVING customer_count > 1
         ORDER BY 2 DESC;
       dataFrameCell: true
       dataConnectionId: null
-      resultVariableName: dataframe_8
+      resultVariableName: order_id_shared_by_customers
       useRichDisplay: true
       enablePreview: true
       sqlCellOutputType: PANDAS
@@ -395,7 +440,7 @@ cells:
         columnAggregations: null
   - cellType: SQL
     cellId: 01a0ffbb-7b81-72f0-bc73-0f939a9670e1 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Define customers dataframe
+    cellLabel: Customer summary (one row per customer)
     config:
       source: |-
         /* Set primary key as market combined with customer_id */
@@ -409,11 +454,11 @@ cells:
             ,ROUND(SUM(sales),2) AS sales
             ,ROUND(SUM(profit),2) AS profit
             ,ROUND(SUM(discount * sales) / SUM(sales),3) AS avg_discount
-        FROM raw
+        FROM superstore_sales
         GROUP BY 1, 2, 3, 4
       dataFrameCell: true
       dataConnectionId: null
-      resultVariableName: customers
+      resultVariableName: customer_summary
       useRichDisplay: true
       enablePreview: true
       sqlCellOutputType: PANDAS
@@ -543,484 +588,16 @@ cells:
         pinIndexColumns: false
         showAggregations: false
         columnAggregations: null
-  - cellType: MARKDOWN
-    cellId: 01a10833-b65d-73e8-90fc-af6b0266a388 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: null
-    config:
-      source: "## What makes a customer loyal ? ## "
-  - cellType: SQL
-    cellId: 01a102af-02ee-77fd-8313-2b738eb5db31 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: How we defined loyalty
-    config:
-      source: |
-        WITH dist AS (
-            -- How many customers have exactly N orders
-            SELECT
-                orders
-                ,COUNT(*) AS customers
-            FROM customers
-            GROUP BY orders
-        )
-
-        -- Running total from the top = customers with N or more orders
-        SELECT
-            orders
-            ,customers
-            ,SUM(customers) OVER (ORDER BY orders DESC) AS customers_at_or_above
-            ,SUM(customers) OVER (ORDER BY orders DESC)/ SUM(customers) OVER () AS share_at_or_above
-            ,orders = {{ minimum_orders }} AS is_selected_threshold
-        FROM dist
-        ORDER BY orders
-      dataFrameCell: true
-      dataConnectionId: null
-      resultVariableName: loyal_threshold
-      useRichDisplay: true
-      enablePreview: true
-      sqlCellOutputType: PANDAS
-      useQueryMode: false
-      castDecimals: true
-      useNativeDates: true
-      outputFilteredResult: true
-      allowDuplicateColumns: false
-      tableDisplayConfig:
-        pageSize: 50
-        height: null
-        hideIcons: false
-        defaultColumnWidth: null
-        hideIndex: false
-        defaultSortColumn: null
-        defaultSortIndexColumn: null
-        defaultSortDirection: ASC
-        conditionalFormatting: null
-        calcs: null
-        filters: null
-        columnProperties:
-          - originalName: customers
-            renameTo: null
-            size: 109
-            wrapText: null
-            displayFormat: null
-          - originalName: customers_at_or_above
-            renameTo: null
-            size: 181
-            wrapText: null
-            displayFormat:
-              format: NUMBER
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: false
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: is_selected_threshold
-            renameTo: null
-            size: 171
-            wrapText: null
-            displayFormat: null
-          - originalName: orders
-            renameTo: null
-            size: 88
-            wrapText: null
-            displayFormat: null
-          - originalName: row-index-0
-            renameTo: null
-            size: 46
-            wrapText: null
-            displayFormat: null
-          - originalName: share_at_or_above
-            renameTo: null
-            size: 172
-            wrapText: null
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-        columnOrdering: null
-        customColumnOrdering: null
-        pinnedColumns: null
-        hiddenColumns: null
-        pinIndexColumns: false
-        showAggregations: false
-        columnAggregations: null
-  - cellType: SQL
-    cellId: 01a104bb-14c3-776f-9b40-f22c8f05ff0f # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Segment loyalty
-    config:
-      source: |-
-        SELECT
-            customer_segments
-            ,COUNT(*) AS customers
-            ,AVG(CASE WHEN orders >= {{ minimum_orders }} THEN 1.0 ELSE 0 END) AS loyal_rate
-            ,SUM(profit) / COUNT(*) AS profit_per_customer
-        FROM customers
-        GROUP BY 1
-        ORDER BY 1
-      dataFrameCell: true
-      dataConnectionId: null
-      resultVariableName: segment_loyalty
-      useRichDisplay: true
-      enablePreview: true
-      sqlCellOutputType: PANDAS
-      useQueryMode: false
-      castDecimals: true
-      useNativeDates: true
-      outputFilteredResult: true
-      allowDuplicateColumns: false
-      tableDisplayConfig:
-        pageSize: 50
-        height: null
-        hideIcons: false
-        defaultColumnWidth: null
-        hideIndex: false
-        defaultSortColumn: null
-        defaultSortIndexColumn: null
-        defaultSortDirection: ASC
-        conditionalFormatting: null
-        calcs: null
-        filters: null
-        columnProperties:
-          - originalName: customer_segments
-            renameTo: null
-            size: 162
-            wrapText: null
-            displayFormat: null
-          - originalName: customers
-            renameTo: null
-            size: 109
-            wrapText: null
-            displayFormat: null
-          - originalName: loyal_rate
-            renameTo: null
-            size: 165
-            wrapText: null
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: profit_per_customer
-            renameTo: null
-            size: 162
-            wrapText: null
-            displayFormat:
-              format: FINANCIAL
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: row-index-0
-            renameTo: null
-            size: 39
-            wrapText: null
-            displayFormat: null
-        columnOrdering: null
-        customColumnOrdering: null
-        pinnedColumns: null
-        hiddenColumns: null
-        pinIndexColumns: false
-        showAggregations: false
-        columnAggregations: null
-  - cellType: MARKDOWN
-    cellId: 01a104d9-cdd9-760a-b0db-2a77ae6c8e17 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: null
-    config:
-      source: "## Distribution of loyal customers by market ##"
-  - cellType: SQL
-    cellId: 01a10308-ea57-7158-81fd-4085f869fcaf # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Market loyalty
-    config:
-      source: |-
-        /* Is a particular market more loyal than the others? */ 
-        SELECT
-            market
-            ,COUNT(*) AS customers
-            ,AVG(CASE WHEN orders >= {{ minimum_orders }} THEN 1.0 ELSE 0 END) AS loyal_rate
-            ,SUM(profit) / COUNT(*) AS profit_per_customer
-            ,SUM(CASE WHEN orders >= {{ minimum_orders }} THEN profit ELSE 0 END) / SUM(profit) AS profit_from_loyal_customers
-        FROM customers
-        GROUP BY 1
-        ORDER BY loyal_rate DESC
-      dataFrameCell: true
-      dataConnectionId: null
-      resultVariableName: market_loyalty
-      useRichDisplay: true
-      enablePreview: true
-      sqlCellOutputType: PANDAS
-      useQueryMode: false
-      castDecimals: true
-      useNativeDates: true
-      outputFilteredResult: true
-      allowDuplicateColumns: false
-      tableDisplayConfig:
-        pageSize: 50
-        height: null
-        hideIcons: false
-        defaultColumnWidth: null
-        hideIndex: false
-        defaultSortColumn: null
-        defaultSortIndexColumn: null
-        defaultSortDirection: ASC
-        conditionalFormatting: null
-        calcs:
-          calcColumns: []
-          referencedColumns: []
-          referencedParamTypes: {}
-          referencedColumnTypes: {}
-        filters: null
-        columnProperties:
-          - originalName: customers
-            renameTo: null
-            size: 109
-            wrapText: null
-            displayFormat: null
-          - originalName: loyal_profit_share
-            renameTo: null
-            size: 172
-            wrapText: null
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: loyal_rate
-            renameTo: null
-            size: 172
-            wrapText: null
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: market
-            renameTo: null
-            size: 91
-            wrapText: null
-            displayFormat: null
-          - originalName: pct_profit_from_loyal_customers
-            renameTo: null
-            size: null
-            wrapText: null
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: profit_from_loyal_customers
-            renameTo: null
-            size: 205
-            wrapText: null
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: profit_per_customer
-            renameTo: null
-            size: 162
-            wrapText: null
-            displayFormat:
-              format: CURRENCY
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 2
-              abbreviateLargeNumbers: false
-          - originalName: row-index-0
-            renameTo: null
-            size: 39
-            wrapText: null
-            displayFormat: null
-        columnOrdering: null
-        customColumnOrdering: null
-        pinnedColumns: null
-        hiddenColumns: null
-        pinIndexColumns: false
-        showAggregations: false
-        columnAggregations: null
-  - cellType: EXPLORE
-    cellId: 01a10314-0b0c-770a-89e9-9d5d1c48aa5f # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Loyal Customer Rate by Market
-    config:
-      semanticProjectId: null
-      dataframe: market_loyalty
-      colorMappings:
-        EU: "#E45756"
-        US: "#72B7B2"
-        APAC: "#4C78A8"
-        EMEA: "#54A24B"
-        LATAM: "#F58518"
-        Africa: "#EECA3B"
-        Canada: "#B279A2"
-      spec:
-        fields:
-          - id: 01a10319-2348-769b-8ecb-57cf619c6a09
-            axis:
-              hideTitle: false
-              colorScheme: redyellowgreen
-            title: Profit per customer
-            value: profit_per_customer
-            channel: color
-            dataType: FLOAT
-            seriesId: 01a10314-0b0b-75b7-8dad-f39f520a4ecc
-            fieldType: COLUMN
-            queryPath: []
-            scaleType: number
-            aggregation: Sum
-            displayFormat:
-              format: CURRENCY
-              currency: USD
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - id: 01a10316-23eb-7493-9fd9-a4b4c5aba620
-            sort:
-              mode: cross-axis-descending
-            title: Superstore Markets
-            value: market
-            channel: base-axis
-            dataType: VARCHAR
-            seriesId: 01a10314-0b0b-75b7-8dad-f39f520a4ecc
-            fieldType: COLUMN
-            queryPath: []
-          - id: 01a10314-33a9-769c-8780-6e975c365a36
-            title: Loyalty Rate
-            value: loyal_rate
-            channel: cross-axis
-            dataType: FLOAT
-            seriesId: 01a10314-0b0b-75b7-8dad-f39f520a4ecc
-            fieldType: COLUMN
-            queryPath: []
-            aggregation: Sum
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-        details:
-          fields:
-            - value: market
-              dataType: VARCHAR
-              fieldType: COLUMN
-              queryPath: []
-            - value: customers
-              dataType: FLOAT
-              fieldType: COLUMN
-              queryPath: []
-            - value: loyal_rate
-              dataType: FLOAT
-              fieldType: COLUMN
-              queryPath: []
-            - value: profit_per_customer
-              dataType: FLOAT
-              fieldType: COLUMN
-              queryPath: []
-            - value: profit_from_loyal_customers
-              dataType: FLOAT
-              fieldType: COLUMN
-              queryPath: []
-          enabled: false
-          showAllBaseTableDetailFields: true
-        viewType: visualization
-        rowTotals: true
-        chartConfig:
-          series:
-            - id: 01a10314-0b0b-75b7-8dad-f39f520a4ecc
-              text:
-                source: cross-axis
-              type: bar
-              color:
-                source: color
-              radius:
-                staticValue: 50
-              tooltip:
-                includeAuto: true
-              barGrouped: true
-          settings:
-            legend:
-              position: none
-          orientation: horizontal
-          seriesGroups:
-            - - 01a10314-0b0b-75b7-8dad-f39f520a4ecc
-        columnTotals: true
-        visualizationType: chart
-      displayTableConfig:
-        pageSize: 50
-        height: null
-        hideIcons: false
-        defaultColumnWidth: null
-        hideIndex: false
-        defaultSortColumn: null
-        defaultSortIndexColumn: null
-        defaultSortDirection: ASC
-        conditionalFormatting: null
-        calcs: null
-        filters: null
-        columnProperties:
-          - originalName: loyal_rate_sum
-            renameTo: null
-            size: 172
-            wrapText: null
-            displayFormat: null
-          - originalName: market
-            renameTo: null
-            size: 157
-            wrapText: null
-            displayFormat: null
-          - originalName: profit_per_customer_sum
-            renameTo: null
-            size: 202
-            wrapText: null
-            displayFormat: null
-        columnOrdering: null
-        customColumnOrdering: null
-        pinnedColumns: null
-        hiddenColumns: null
-        pinIndexColumns: false
-        showAggregations: false
-        columnAggregations: null
-      resultVariables: []
-      resultIncludeDetailColumns: false
-      height: null
-  - cellType: MARKDOWN
-    cellId: 01a10834-c991-720e-bb0a-569810a0b679 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: null
-    config:
-      source: "## Break down customers with more details ## "
   - cellType: SQL
     cellId: 01a10358-3b64-703f-81b4-ece0ccfb3c0c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Customer lines
+    cellLabel: Order lines enriched (order lines + loyalty info)
     config:
       source: |-
         WITH first_orders AS (
             SELECT
                 market || '-' || customer_id AS customer_key
                 ,order_id
-            FROM raw
+            FROM superstore_sales
             GROUP BY 1, 2
             QUALIFY ROW_NUMBER() OVER (
                 PARTITION BY market || '-' || customer_id
@@ -1042,15 +619,15 @@ cells:
             ,r.sales
             ,r.profit
             ,f.order_id IS NOT NULL AS is_first_order
-        FROM raw r
-        JOIN customers c
+        FROM superstore_sales r
+        JOIN customer_summary c
             ON c.customer_key = r.market || '-' || r.customer_id
         LEFT JOIN first_orders f
             ON f.customer_key = c.customer_key
             AND f.order_id = r.order_id
       dataFrameCell: true
       dataConnectionId: null
-      resultVariableName: customer_lines
+      resultVariableName: order_lines_enriched
       useRichDisplay: true
       enablePreview: true
       sqlCellOutputType: PANDAS
@@ -1149,39 +726,35 @@ cells:
         pinIndexColumns: false
         showAggregations: false
         columnAggregations: null
-  - cellType: MARKDOWN
-    cellId: 01a104da-7b97-75ef-926c-13afbf209325 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+  - cellType: TEXT
+    cellId: 01a10f43-8f97-759e-a3bd-e41e2386621a # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
     cellLabel: null
     config:
-      source: |-
-        ## What creates loyalty? ##
-        - Acquisition behavior 
-        - Understand who the customers are and what they buy 
-        - How fast customers come back to Superstore to make their second purchase 
+      richText:
+        - type: h1
+          children:
+            - text: The headline
   - cellType: SQL
-    cellId: 01a10379-0dd0-7643-a8ea-34f5a7d2318c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Gateway products
+    cellId: 01a10530-cae2-737d-9155-4266068facfe # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: loyal_revenue_by_year
     config:
       source: |-
-        /* Which first purchase turns customers into loyal ones? This question focuses on what to offer new customers */
-
         SELECT
-            sub_category
-            ,COUNT(*) AS customers
-            ,AVG(CASE WHEN orders >= {{ minimum_orders }} THEN 1.0 ELSE 0 END) AS loyal_rate
-        FROM (
-            SELECT DISTINCT
-                customer_key
-                ,sub_category
-                ,orders
-            FROM customer_lines
-            WHERE is_first_order 
-        )
+            CASE WHEN orders >= {{ loyal_order_threshold }} THEN 'Loyal' ELSE 'Not loyal' END AS customer_group
+            ,COUNT(DISTINCT customer_key) AS customers
+            ,SUM(sales) AS revenue
+            ,SUM(sales) / COUNT(DISTINCT customer_key) AS revenue_per_customer
+            ,SUM(profit) AS profit
+            ,COUNT(DISTINCT customer_key) / SUM(COUNT(DISTINCT customer_key)) OVER () AS share_of_customers
+            ,SUM(sales) / SUM(SUM(sales)) OVER () AS share_of_revenue
+        FROM order_lines_enriched
+        WHERE ({{ market }} = 'All' OR market = {{ market }})
+          AND ({{ order_year }} = 'All' OR CAST(YEAR(order_date) AS VARCHAR) = {{ order_year }})
         GROUP BY 1
-        ORDER BY loyal_rate DESC
+        ORDER BY 1
       dataFrameCell: true
       dataConnectionId: null
-      resultVariableName: gateway_products
+      resultVariableName: loyal_revenue_by_year
       useRichDisplay: true
       enablePreview: true
       sqlCellOutputType: PANDAS
@@ -1203,12 +776,63 @@ cells:
         calcs: null
         filters: null
         columnProperties:
+          - originalName: customer_group
+            renameTo: null
+            size: 141
+            wrapText: null
+            displayFormat: null
           - originalName: customers
             renameTo: null
             size: 109
             wrapText: null
             displayFormat: null
-          - originalName: loyal_rate
+          - originalName: order_year
+            renameTo: null
+            size: 111
+            wrapText: null
+            displayFormat: null
+          - originalName: profit
+            renameTo: null
+            size: 81
+            wrapText: null
+            displayFormat:
+              format: FINANCIAL
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: -1
+              abbreviateLargeNumbers: true
+          - originalName: revenue
+            renameTo: null
+            size: 95
+            wrapText: null
+            displayFormat:
+              format: FINANCIAL
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: true
+          - originalName: revenue_per_customer
+            renameTo: null
+            size: 176
+            wrapText: null
+            displayFormat:
+              format: FINANCIAL
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: true
+          - originalName: row-index-0
+            renameTo: null
+            size: 40
+            wrapText: null
+            displayFormat: null
+          - originalName: share_of_customers
             renameTo: null
             size: 165
             wrapText: null
@@ -1220,190 +844,21 @@ cells:
               showSeparators: true
               numDecimalDigits: 0
               abbreviateLargeNumbers: false
-          - originalName: row-index-0
-            renameTo: null
-            size: 46
-            wrapText: null
-            displayFormat: null
-          - originalName: sub_category
-            renameTo: null
-            size: 124
-            wrapText: null
-            displayFormat: null
-        columnOrdering: null
-        customColumnOrdering: null
-        pinnedColumns: null
-        hiddenColumns: null
-        pinIndexColumns: false
-        showAggregations: false
-        columnAggregations: null
-  - cellType: EXPLORE
-    cellId: 01a10390-0f84-7031-98d7-c251314d3f11 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Which first purchases turn into loyal customers?
-    config:
-      semanticProjectId: null
-      dataframe: gateway_products
-      colorMappings: {}
-      spec:
-        fields:
-          - id: 01a10390-422e-740f-997f-90542f046273
-            sort:
-              mode: cross-axis-descending
-            title: Subcategory
-            value: sub_category
-            channel: base-axis
-            dataType: VARCHAR
-            seriesId: 01a10390-0f80-72bd-900e-c0803e2b24a0
-            fieldType: COLUMN
-            queryPath: []
-          - id: 01a10390-4cbf-76ed-b7de-8d4f634db0d0
-            title: Loyal Rate
-            value: loyal_rate
-            channel: cross-axis
-            dataType: FLOAT
-            seriesId: 01a10390-0f80-72bd-900e-c0803e2b24a0
-            fieldType: COLUMN
-            queryPath: []
-            aggregation: Sum
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - id: 01a1039b-52f7-753c-b5ba-2757ed86c62b
-            title: Customers
-            value: customers
-            channel: tooltip
-            dataType: FLOAT
-            seriesId: 01a10390-0f80-72bd-900e-c0803e2b24a0
-            fieldType: COLUMN
-            queryPath: []
-            aggregation: Sum
-        details:
-          fields:
-            - value: sub_category
-              dataType: VARCHAR
-              fieldType: COLUMN
-              queryPath: []
-            - value: customers
-              dataType: FLOAT
-              fieldType: COLUMN
-              queryPath: []
-            - value: loyal_rate
-              dataType: FLOAT
-              fieldType: COLUMN
-              queryPath: []
-          enabled: false
-          showAllBaseTableDetailFields: true
-        viewType: visualization
-        rowTotals: true
-        chartConfig:
-          series:
-            - id: 01a10390-0f80-72bd-900e-c0803e2b24a0
-              type: bar
-              color:
-                source: color
-                staticValue: "#8ace00"
-              barGrouped: true
-          settings:
-            legend:
-              position: right
-          orientation: horizontal
-          seriesGroups:
-            - - 01a10390-0f80-72bd-900e-c0803e2b24a0
-        columnTotals: true
-        visualizationType: chart
-      displayTableConfig:
-        pageSize: 50
-        height: null
-        hideIcons: false
-        defaultColumnWidth: null
-        hideIndex: false
-        defaultSortColumn: null
-        defaultSortIndexColumn: null
-        defaultSortDirection: ASC
-        conditionalFormatting: null
-        calcs: null
-        filters: null
-        columnProperties:
-          - originalName: loyal_rate_sum
-            renameTo: null
-            size: 165
-            wrapText: null
-            displayFormat: null
-          - originalName: sub_category
-            renameTo: null
-            size: 119
-            wrapText: null
-            displayFormat: null
-        columnOrdering: null
-        customColumnOrdering: null
-        pinnedColumns: null
-        hiddenColumns: null
-        pinIndexColumns: false
-        showAggregations: false
-        columnAggregations: null
-      resultVariables: []
-      resultIncludeDetailColumns: false
-      height: null
-  - cellType: SQL
-    cellId: 01a104c2-60c0-7248-97f9-eccd14264402 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Loyal spend
-    config:
-      source: |+
-        /* Loyal customers only: share of their spend by sub-category, and its margin.
-           Spend = SUM(sales); margin = SUM(profit) / SUM(sales) */
-        SELECT
-            sub_category
-            ,SUM(sales) AS loyal_sales
-            ,SUM(sales) / SUM(SUM(sales)) OVER () AS share_of_loyal_spend
-            ,SUM(profit) / SUM(sales) AS margin
-        FROM customer_lines
-        WHERE orders >= {{ minimum_orders }}
-        GROUP BY 1
-        ORDER BY loyal_sales DESC
-
-      dataFrameCell: true
-      dataConnectionId: null
-      resultVariableName: loyal_spend
-      useRichDisplay: true
-      enablePreview: true
-      sqlCellOutputType: PANDAS
-      useQueryMode: false
-      castDecimals: true
-      useNativeDates: true
-      outputFilteredResult: true
-      allowDuplicateColumns: false
-      tableDisplayConfig:
-        pageSize: 50
-        height: null
-        hideIcons: false
-        defaultColumnWidth: null
-        hideIndex: false
-        defaultSortColumn: null
-        defaultSortIndexColumn: null
-        defaultSortDirection: ASC
-        conditionalFormatting: null
-        calcs: null
-        filters: null
-        columnProperties:
-          - originalName: loyal_sales
+          - originalName: share_of_profit
             renameTo: null
             size: 158
             wrapText: null
             displayFormat:
-              format: FINANCIAL
+              format: PERCENT
               currency: USD
               nanFormat: "null"
               columnType: NUMBER
               showSeparators: true
-              numDecimalDigits: -1
-              abbreviateLargeNumbers: true
-          - originalName: margin
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: share_of_revenue
             renameTo: null
-            size: 170
+            size: 147
             wrapText: null
             displayFormat:
               format: PERCENT
@@ -1413,14 +868,9 @@ cells:
               showSeparators: true
               numDecimalDigits: 0
               abbreviateLargeNumbers: false
-          - originalName: row-index-0
+          - originalName: share_of_sales
             renameTo: null
-            size: 47
-            wrapText: null
-            displayFormat: null
-          - originalName: share_of_loyal_spend
-            renameTo: null
-            size: 169
+            size: 158
             wrapText: null
             displayFormat:
               format: PERCENT
@@ -1430,11 +880,6 @@ cells:
               showSeparators: true
               numDecimalDigits: 0
               abbreviateLargeNumbers: false
-          - originalName: sub_category
-            renameTo: null
-            size: 124
-            wrapText: null
-            displayFormat: null
         columnOrdering: null
         customColumnOrdering: null
         pinnedColumns: null
@@ -1442,277 +887,26 @@ cells:
         pinIndexColumns: false
         showAggregations: false
         columnAggregations: null
-  - cellType: EXPLORE
-    cellId: 01a104f0-0478-7319-8500-e95ad0122044 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+  - cellType: TEXT
+    cellId: 01a10f45-0700-706f-84f3-7fb6a3117da5 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
     cellLabel: null
     config:
-      semanticProjectId: null
-      dataframe: loyal_spend
-      colorMappings: {}
-      spec:
-        fields:
-          - id: 01a104f3-9efb-7299-9281-6e9926b26fd5
-            title: Subcategory
-            value: sub_category
-            channel: base-axis
-            dataType: VARCHAR
-            seriesId: 01a104f0-0476-7587-b476-cf52d07c0d4e
-            fieldType: COLUMN
-            queryPath: []
-          - id: 01a104f3-b43a-77a1-83f3-e88374ea186f
-            title: Margin
-            value: margin
-            channel: cross-axis
-            dataType: FLOAT
-            seriesId: 01a104f0-0476-7587-b476-cf52d07c0d4e
-            fieldType: COLUMN
-            queryPath: []
-            aggregation: Sum
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - id: 01a104f6-358d-71e8-bebe-84efd1dddf9a
-            title: "% of loyal customer sales "
-            value: share_of_loyal_spend
-            channel: tooltip
-            dataType: FLOAT
-            seriesId: 01a104f0-0476-7587-b476-cf52d07c0d4e
-            fieldType: COLUMN
-            queryPath: []
-            aggregation: Sum
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - id: 01a104f6-4025-7060-9e67-3893c3e20f7d
-            title: Loyal Customer Total Sales
-            value: loyal_sales
-            channel: tooltip
-            dataType: FLOAT
-            seriesId: 01a104f0-0476-7587-b476-cf52d07c0d4e
-            fieldType: COLUMN
-            queryPath: []
-            aggregation: Sum
-            displayFormat:
-              format: FINANCIAL
-              currency: USD
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: -1
-              abbreviateLargeNumbers: true
-        details:
-          fields:
-            - value: sub_category
-              dataType: VARCHAR
-              fieldType: COLUMN
-              queryPath: []
-            - value: loyal_sales
-              dataType: FLOAT
-              fieldType: COLUMN
-              queryPath: []
-            - value: share_of_loyal_spend
-              dataType: FLOAT
-              fieldType: COLUMN
-              queryPath: []
-            - value: margin
-              dataType: FLOAT
-              fieldType: COLUMN
-              queryPath: []
-          enabled: false
-          showAllBaseTableDetailFields: true
-        viewType: visualization
-        rowTotals: true
-        chartConfig:
-          series:
-            - id: 01a104f0-0476-7587-b476-cf52d07c0d4e
-              type: bar
-              barGrouped: true
-          settings:
-            legend:
-              position: right
-          orientation: vertical
-          seriesGroups:
-            - - 01a104f0-0476-7587-b476-cf52d07c0d4e
-        columnTotals: true
-        visualizationType: chart
-      displayTableConfig:
-        pageSize: 50
-        height: null
-        hideIcons: false
-        defaultColumnWidth: null
-        hideIndex: false
-        defaultSortColumn: null
-        defaultSortIndexColumn: null
-        defaultSortDirection: ASC
-        conditionalFormatting: null
-        calcs: null
-        filters: null
-        columnProperties: []
-        columnOrdering: null
-        customColumnOrdering: null
-        pinnedColumns: null
-        hiddenColumns: null
-        pinIndexColumns: false
-        showAggregations: false
-        columnAggregations: null
-      resultVariables: []
-      resultIncludeDetailColumns: false
-      height: null
-  - cellType: INPUT
-    cellId: 01a10506-86b9-72e4-bdfb-50b6b42a2f23 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Market
-    config:
-      inputType: DROPDOWN
-      name: market
-      outputType: STRING
-      options:
-        valueOptions:
-          - APAC
-          - LATAM
-          - EU
-          - US
-          - EMEA
-          - Africa
-          - Canada
-          - All
-        optional: true
-      defaultValue: All
-  - cellType: SQL
-    cellId: 01a104fd-21cf-7299-9f27-11f83bb22e4c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: Second order speed
-    config:
-      source: |
-        /* How quickly did each customer place their 2nd order, and did they become 'loyal'?
-           Customers with only 1 order are excluded (they never placed a 2nd) */
-           
-        WITH orders AS (
-            SELECT
-                customer_key
-                ,order_id
-                ,MIN(order_date) AS order_date
-            FROM customer_lines
-            GROUP BY 1, 2
-        ),
-        numbered AS (
-            SELECT
-                *
-                ,ROW_NUMBER() OVER (PARTITION BY customer_key ORDER BY order_date, order_id) AS order_number
-            FROM orders
-        ),
-        second_gap AS (
-            -- days from first to second order 
-            SELECT
-                first.customer_key
-                ,DATE_DIFF('day', first.order_date, second.order_date) AS days_to_second_order
-            FROM numbered first
-            JOIN numbered second
-                ON second.customer_key = first.customer_key
-                AND second.order_number = 2
-            WHERE first.order_number = 1
-        )
-        SELECT
-            CASE
-                WHEN g.days_to_second_order <= 90 THEN '1. Within 3 months'
-                WHEN g.days_to_second_order <= 180 THEN '2. 3-6 months'
-                WHEN g.days_to_second_order <= 365 THEN '3. 6-12 months'
-                ELSE '4. Over 12 months'
-            END AS time_to_second_order
-            ,COUNT(*) AS customers
-            ,AVG(CASE WHEN c.orders >= {{ minimum_orders }} THEN 1.0 ELSE 0 END) AS loyal_rate
-            ,SUM(c.profit) / COUNT(*) AS profit_per_customer
-        FROM second_gap g
-        JOIN customers c USING (customer_key)
-        WHERE ({{ market }} = 'All' OR c.market = {{ market }})
-        GROUP BY 1
-      dataFrameCell: true
-      dataConnectionId: null
-      resultVariableName: second_order_speed
-      useRichDisplay: true
-      enablePreview: true
-      sqlCellOutputType: PANDAS
-      useQueryMode: false
-      castDecimals: true
-      useNativeDates: true
-      outputFilteredResult: true
-      allowDuplicateColumns: false
-      tableDisplayConfig:
-        pageSize: 50
-        height: null
-        hideIcons: false
-        defaultColumnWidth: null
-        hideIndex: false
-        defaultSortColumn: null
-        defaultSortIndexColumn: null
-        defaultSortDirection: ASC
-        conditionalFormatting: null
-        calcs: null
-        filters: null
-        columnProperties:
-          - originalName: customers
-            renameTo: null
-            size: 109
-            wrapText: null
-            displayFormat: null
-          - originalName: loyal_rate
-            renameTo: null
-            size: 165
-            wrapText: null
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: profit_per_customer
-            renameTo: null
-            size: 162
-            wrapText: null
-            displayFormat:
-              format: FINANCIAL
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: row-index-0
-            renameTo: null
-            size: 39
-            wrapText: null
-            displayFormat: null
-          - originalName: time_to_second_order
-            renameTo: null
-            size: 174
-            wrapText: null
-            displayFormat: null
-        columnOrdering: null
-        customColumnOrdering: null
-        pinnedColumns: null
-        hiddenColumns: null
-        pinIndexColumns: false
-        showAggregations: false
-        columnAggregations: null
+      richText:
+        - type: h1
+          children:
+            - text: What If
   - cellType: MARKDOWN
-    cellId: 01a1050e-998d-71f8-bfce-b5f32fe8bd3b # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: null
+    cellId: 01a10f45-ec0c-750d-81fe-95aa798a5295 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Tier table
     config:
       source: |-
-        ## How do we capture even more loyalty? ##
-        | Characterize Purchase Habits | # of Orders |
+        ## Definitions
+        | Tier | Orders |
         |---|---|
         | One-time | 1 |
-        | Occasional | 2 to 3 |
-        | Regular | 4 to 6 |
-        | Loyal | 7 or more |
+        | Occasional | 2–3 |
+        | Regular | 4–6 |
+        | Loyal | 7+ |
   - cellType: INPUT
     cellId: 01a10525-69d5-709f-a028-fd76bf27c22f # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
     cellLabel: convert_pct
@@ -1732,8 +926,15 @@ cells:
       source: |-
         # 1. Split customers (one row per customer, from SQL) into two groups
         #    Fixed definitions: Regular = 4-6 orders, Loyal = 7+ orders
-        regulars = customers[customers.orders.between(4, 6)]
-        loyal = customers[customers.orders >= 7]
+        import pandas as pd
+        pool = customer_summary if market == "All" else customer_summary[customer_summary.market == market]
+
+        if order_year != "All":
+            yr = order_lines_enriched[pd.to_datetime(order_lines_enriched.order_date).dt.year.astype(str) == str(order_year)]
+            pool = pool[pool.customer_key.isin(yr.customer_key)]
+
+        regulars = pool[pool.orders.between(4, 6)]
+        loyal = pool[pool.orders >= 7]
 
         # 2. Per market: how many regulars, and average profit of each group
         regular_stats = regulars.groupby("market").agg(
@@ -1755,7 +956,7 @@ cells:
         total_profit_gain = market_conversion.profit_gain[market_conversion.profit_gain > 0].sum()
   - cellType: TABLE_DISPLAY
     cellId: 01a10529-55fd-7549-b1ab-27f1c4a1a024 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: null
+    cellLabel: market_conversion_visualized
     config:
       dataFrameVariableName: market_conversion
       resultVariable: table_result
@@ -1942,6 +1143,691 @@ cells:
         pinIndexColumns: false
         showAggregations: false
         columnAggregations: null
+  - cellType: TEXT
+    cellId: 01a10f48-30ef-75e9-a0fa-e33aae3a819f # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h1
+          children:
+            - text: Defining Loyalty
+  - cellType: SQL
+    cellId: 01a102af-02ee-77fd-8313-2b738eb5db31 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: How we defined loyalty
+    config:
+      source: |
+        WITH dist AS (
+            -- How many customers have exactly N orders
+            SELECT
+                orders
+                ,COUNT(*) AS customers
+            FROM customer_summary
+            GROUP BY orders
+        )
+
+        -- Running total from the top = customers with N or more orders
+        SELECT
+            orders
+            ,customers
+            ,SUM(customers) OVER (ORDER BY orders DESC) AS customers_at_or_above
+            ,SUM(customers) OVER (ORDER BY orders DESC)/ SUM(customers) OVER () AS share_at_or_above
+            ,orders = {{ loyal_order_threshold }} AS is_selected_threshold
+        FROM dist
+        ORDER BY orders
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: loyal_threshold
+      useRichDisplay: true
+      enablePreview: true
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: true
+      allowDuplicateColumns: false
+      tableDisplayConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        defaultColumnWidth: null
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        calcs: null
+        filters: null
+        columnProperties:
+          - originalName: customers
+            renameTo: null
+            size: 109
+            wrapText: null
+            displayFormat: null
+          - originalName: customers_at_or_above
+            renameTo: null
+            size: 181
+            wrapText: null
+            displayFormat:
+              format: NUMBER
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: false
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: is_selected_threshold
+            renameTo: null
+            size: 171
+            wrapText: null
+            displayFormat: null
+          - originalName: orders
+            renameTo: null
+            size: 88
+            wrapText: null
+            displayFormat: null
+          - originalName: row-index-0
+            renameTo: null
+            size: 46
+            wrapText: null
+            displayFormat: null
+          - originalName: share_at_or_above
+            renameTo: null
+            size: 172
+            wrapText: null
+            displayFormat:
+              format: PERCENT
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+        columnOrdering: null
+        customColumnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+        pinIndexColumns: false
+        showAggregations: false
+        columnAggregations: null
+  - cellType: TEXT
+    cellId: 01a10f48-77c6-7349-a513-b4e722b7fca2 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h1
+          children:
+            - text: What drives loyalty
+  - cellType: SQL
+    cellId: 01a10379-0dd0-7643-a8ea-34f5a7d2318c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Gateway products
+    config:
+      source: |-
+        /* Which first purchase turns customers into loyal ones? This question focuses on what to offer new customers */
+
+        SELECT
+            sub_category
+            ,COUNT(*) AS customers
+            ,AVG(CASE WHEN orders >= {{ loyal_order_threshold }} THEN 1.0 ELSE 0 END) AS loyal_rate
+        FROM (
+            SELECT DISTINCT
+                customer_key
+                ,sub_category
+                ,orders
+            FROM order_lines_enriched
+            WHERE is_first_order
+                AND ({{ market }} = 'All' OR market = {{ market }})
+                AND ({{ order_year }} = 'All' OR CAST(YEAR(order_date) AS VARCHAR) = {{ order_year }})
+        )
+        GROUP BY 1
+        ORDER BY loyal_rate DESC
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: gateway_products
+      useRichDisplay: true
+      enablePreview: true
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: true
+      allowDuplicateColumns: false
+      tableDisplayConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        defaultColumnWidth: null
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        calcs: null
+        filters: null
+        columnProperties:
+          - originalName: customers
+            renameTo: null
+            size: 109
+            wrapText: null
+            displayFormat: null
+          - originalName: loyal_rate
+            renameTo: null
+            size: 165
+            wrapText: null
+            displayFormat:
+              format: PERCENT
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: row-index-0
+            renameTo: null
+            size: 46
+            wrapText: null
+            displayFormat: null
+          - originalName: sub_category
+            renameTo: null
+            size: 124
+            wrapText: null
+            displayFormat: null
+        columnOrdering: null
+        customColumnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+        pinIndexColumns: false
+        showAggregations: false
+        columnAggregations: null
+  - cellType: SQL
+    cellId: 01a104fd-21cf-7299-9f27-11f83bb22e4c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Second order speed
+    config:
+      source: |
+        /* How quickly did each customer place their 2nd order, and did they become 'loyal'?
+           Customers with only 1 order are excluded (they never placed a 2nd) */
+           
+        WITH orders AS (
+            SELECT
+                customer_key
+                ,order_id
+                ,MIN(order_date) AS order_date
+            FROM order_lines_enriched
+            GROUP BY 1, 2
+        ),
+        numbered AS (
+            SELECT
+                *
+                ,ROW_NUMBER() OVER (PARTITION BY customer_key ORDER BY order_date, order_id) AS order_number
+            FROM orders
+        ),
+        second_gap AS (
+            -- days from first to second order 
+            SELECT
+                first.customer_key
+                ,DATE_DIFF('day', first.order_date, second.order_date) AS days_to_second_order
+            FROM numbered first
+            JOIN numbered second
+                ON second.customer_key = first.customer_key
+                AND second.order_number = 2
+            WHERE first.order_number = 1
+                AND ({{ order_year }} = 'All' OR CAST(YEAR(first.order_date) AS VARCHAR) = {{ order_year }})
+        )
+        SELECT
+            CASE
+                WHEN g.days_to_second_order <= 90 THEN '1. Within 3 months'
+                WHEN g.days_to_second_order <= 180 THEN '2. 3-6 months'
+                WHEN g.days_to_second_order <= 365 THEN '3. 6-12 months'
+                ELSE '4. Over 12 months'
+            END AS time_to_second_order
+            ,COUNT(*) AS customers
+            ,AVG(CASE WHEN c.orders >= {{ loyal_order_threshold }} THEN 1.0 ELSE 0 END) AS loyal_rate
+            ,SUM(c.profit) / COUNT(*) AS profit_per_customer
+        FROM second_gap g
+        JOIN customer_summary c USING (customer_key)
+        WHERE ({{ market }} = 'All' OR c.market = {{ market }})
+        GROUP BY 1
+        ORDER BY 1
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: second_order_speed
+      useRichDisplay: true
+      enablePreview: true
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: true
+      allowDuplicateColumns: false
+      tableDisplayConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        defaultColumnWidth: null
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        calcs: null
+        filters: null
+        columnProperties:
+          - originalName: customers
+            renameTo: null
+            size: 109
+            wrapText: null
+            displayFormat: null
+          - originalName: loyal_rate
+            renameTo: null
+            size: 165
+            wrapText: null
+            displayFormat:
+              format: PERCENT
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: profit_per_customer
+            renameTo: null
+            size: 162
+            wrapText: null
+            displayFormat:
+              format: FINANCIAL
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: row-index-0
+            renameTo: null
+            size: 39
+            wrapText: null
+            displayFormat: null
+          - originalName: time_to_second_order
+            renameTo: null
+            size: 174
+            wrapText: null
+            displayFormat: null
+        columnOrdering: null
+        customColumnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+        pinIndexColumns: false
+        showAggregations: false
+        columnAggregations: null
+  - cellType: TEXT
+    cellId: 01a10f49-8e91-70d1-a0a6-272095bcc0a9 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h1
+          children:
+            - text: Drill-down
+  - cellType: SQL
+    cellId: 01a10308-ea57-7158-81fd-4085f869fcaf # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Market loyalty
+    config:
+      source: |-
+        /* Is a particular market more loyal than the others? */ 
+        SELECT
+            market
+            ,COUNT(*) AS customers
+            ,AVG(CASE WHEN orders >= {{ loyal_order_threshold }} THEN 1.0 ELSE 0 END) AS loyal_rate
+            ,SUM(profit) / COUNT(*) AS profit_per_customer
+            ,AVG(profit) FILTER (WHERE orders >= {{ loyal_order_threshold }}) AS profit_per_loyal_customer
+            ,SUM(CASE WHEN orders >= {{ loyal_order_threshold }} THEN profit ELSE 0 END) / SUM(profit) AS profit_from_loyal_customers
+        FROM customer_summary
+        WHERE ({{ market }} = 'All' OR market = {{ market }})
+          AND ({{ order_year }} = 'All' OR customer_key IN (
+            SELECT DISTINCT customer_key FROM order_lines_enriched
+            WHERE CAST(YEAR(order_date) AS VARCHAR) = {{ order_year }}))
+        GROUP BY 1
+        ORDER BY loyal_rate DESC
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: market_loyalty
+      useRichDisplay: true
+      enablePreview: true
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: true
+      allowDuplicateColumns: false
+      tableDisplayConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        defaultColumnWidth: null
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        calcs:
+          calcColumns: []
+          referencedColumns: []
+          referencedParamTypes: {}
+          referencedColumnTypes: {}
+        filters: null
+        columnProperties:
+          - originalName: customers
+            renameTo: null
+            size: 109
+            wrapText: null
+            displayFormat: null
+          - originalName: loyal_profit_share
+            renameTo: null
+            size: 172
+            wrapText: null
+            displayFormat:
+              format: PERCENT
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: loyal_rate
+            renameTo: null
+            size: 172
+            wrapText: null
+            displayFormat:
+              format: PERCENT
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: market
+            renameTo: null
+            size: 91
+            wrapText: null
+            displayFormat: null
+          - originalName: pct_profit_from_loyal_customers
+            renameTo: null
+            size: null
+            wrapText: null
+            displayFormat:
+              format: PERCENT
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: profit_from_loyal_customers
+            renameTo: null
+            size: 205
+            wrapText: null
+            displayFormat:
+              format: PERCENT
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: profit_per_customer
+            renameTo: null
+            size: 162
+            wrapText: null
+            displayFormat:
+              format: CURRENCY
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 2
+              abbreviateLargeNumbers: false
+          - originalName: profit_per_loyal_customer
+            renameTo: null
+            size: 194
+            wrapText: null
+            displayFormat: null
+          - originalName: row-index-0
+            renameTo: null
+            size: 39
+            wrapText: null
+            displayFormat: null
+        columnOrdering: null
+        customColumnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+        pinIndexColumns: false
+        showAggregations: false
+        columnAggregations: null
+  - cellType: SQL
+    cellId: 01a104bb-14c3-776f-9b40-f22c8f05ff0f # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Segment loyalty
+    config:
+      source: |-
+        SELECT
+            customer_segments
+            ,COUNT(*) AS customers
+            ,AVG(CASE WHEN orders >= {{ loyal_order_threshold }} THEN 1.0 ELSE 0 END) AS loyal_rate
+            ,SUM(profit) / COUNT(*) AS profit_per_customer
+        FROM customer_summary
+        WHERE ({{ market }} = 'All' OR market = {{ market }})
+          AND ({{ order_year }} = 'All' OR customer_key IN (
+            SELECT DISTINCT customer_key FROM order_lines_enriched
+            WHERE CAST(YEAR(order_date) AS VARCHAR) = {{ order_year }}))
+        GROUP BY 1
+        ORDER BY 1
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: segment_loyalty
+      useRichDisplay: true
+      enablePreview: true
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: true
+      allowDuplicateColumns: false
+      tableDisplayConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        defaultColumnWidth: null
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        calcs: null
+        filters: null
+        columnProperties:
+          - originalName: customer_segments
+            renameTo: null
+            size: 162
+            wrapText: null
+            displayFormat: null
+          - originalName: customers
+            renameTo: null
+            size: 109
+            wrapText: null
+            displayFormat: null
+          - originalName: loyal_rate
+            renameTo: null
+            size: 165
+            wrapText: null
+            displayFormat:
+              format: PERCENT
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: profit_per_customer
+            renameTo: null
+            size: 162
+            wrapText: null
+            displayFormat:
+              format: FINANCIAL
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: row-index-0
+            renameTo: null
+            size: 39
+            wrapText: null
+            displayFormat: null
+        columnOrdering: null
+        customColumnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+        pinIndexColumns: false
+        showAggregations: false
+        columnAggregations: null
+  - cellType: SQL
+    cellId: 01a104c2-60c0-7248-97f9-eccd14264402 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Loyal spend
+    config:
+      source: |+
+        /* Loyal customers only: share of their spend by sub-category, and its margin.
+           Spend = SUM(sales); margin = SUM(profit) / SUM(sales) */
+        SELECT
+            sub_category
+            ,SUM(sales) AS loyal_sales
+            ,SUM(sales) / SUM(SUM(sales)) OVER () AS share_of_loyal_spend
+            ,SUM(profit) / SUM(sales) AS margin
+            ,SUM(profit) AS loyal_profit
+            ,COUNT(DISTINCT customer_key) AS loyal_buyers
+            ,SUM(sales) / COUNT(DISTINCT customer_key) AS avg_sales_per_loyal_buyer
+            ,SUM(profit) / COUNT(DISTINCT customer_key) AS avg_profit_per_loyal_buyer
+        FROM order_lines_enriched
+        WHERE orders >= {{ loyal_order_threshold }}
+            AND ({{ market }} = 'All' OR market = {{ market }})
+            AND ({{ order_year }} = 'All' OR CAST(YEAR(order_date) AS VARCHAR) = {{ order_year }})
+        GROUP BY 1
+        ORDER BY loyal_sales DESC
+
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: loyal_spend
+      useRichDisplay: true
+      enablePreview: true
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: true
+      allowDuplicateColumns: false
+      tableDisplayConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        defaultColumnWidth: null
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        calcs: null
+        filters: null
+        columnProperties:
+          - originalName: avg_profit_per_loyal_buyer
+            renameTo: null
+            size: 201
+            wrapText: null
+            displayFormat:
+              format: FINANCIAL
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 2
+              abbreviateLargeNumbers: false
+          - originalName: avg_sales_per_loyal_buyer
+            renameTo: null
+            size: 199
+            wrapText: null
+            displayFormat:
+              format: FINANCIAL
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 2
+              abbreviateLargeNumbers: false
+          - originalName: loyal_buyers
+            renameTo: null
+            size: 121
+            wrapText: null
+            displayFormat: null
+          - originalName: loyal_profit
+            renameTo: null
+            size: 163
+            wrapText: null
+            displayFormat:
+              format: FINANCIAL
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: -1
+              abbreviateLargeNumbers: true
+          - originalName: loyal_sales
+            renameTo: null
+            size: 158
+            wrapText: null
+            displayFormat:
+              format: FINANCIAL
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: -1
+              abbreviateLargeNumbers: true
+          - originalName: margin
+            renameTo: null
+            size: 170
+            wrapText: null
+            displayFormat:
+              format: PERCENT
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: row-index-0
+            renameTo: null
+            size: 47
+            wrapText: null
+            displayFormat: null
+          - originalName: share_of_loyal_spend
+            renameTo: null
+            size: 169
+            wrapText: null
+            displayFormat:
+              format: PERCENT
+              currency: USD
+              nanFormat: "null"
+              columnType: NUMBER
+              showSeparators: true
+              numDecimalDigits: 0
+              abbreviateLargeNumbers: false
+          - originalName: sub_category
+            renameTo: null
+            size: 124
+            wrapText: null
+            displayFormat: null
+        columnOrdering: null
+        customColumnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+        pinIndexColumns: false
+        showAggregations: false
+        columnAggregations: null
   - cellType: SQL
     cellId: 01a1052d-6e09-746e-964e-070d0739407e # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
     cellLabel: gateway_by_market
@@ -1956,9 +1842,11 @@ cells:
                 ,market
                 ,MAX(CASE WHEN sub_category IN ('Tables', 'Chairs', 'Furnishings') THEN 1 ELSE 0 END)
                     AS started_with_furniture                                   -- 1 if ANY line was furniture
-                ,CASE WHEN orders >= {{ minimum_orders }} THEN 1.0 ELSE 0 END AS is_loyal
-            FROM customer_lines
+                ,CASE WHEN orders >= {{ loyal_order_threshold }} THEN 1.0 ELSE 0 END AS is_loyal
+            FROM order_lines_enriched
             WHERE is_first_order
+                AND ({{ market }} = 'All' OR market = {{ market }})
+                AND ({{ order_year }} = 'All' OR CAST(YEAR(order_date) AS VARCHAR) = {{ order_year }})
             GROUP BY customer_key, market, orders
         )
         SELECT
@@ -2065,174 +1953,15 @@ cells:
         pinIndexColumns: false
         showAggregations: false
         columnAggregations: null
-  - cellType: INPUT
-    cellId: 01a1086b-420b-70e8-bc12-99eb6a7fedaa # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: order_year
-    config:
-      inputType: DROPDOWN
-      name: order_year
-      outputType: STRING
-      options:
-        valueOptions:
-          - All
-          - "2011"
-          - "2012"
-          - "2013"
-          - "2014"
-        optional: true
-      defaultValue: All
-  - cellType: SQL
-    cellId: 01a10530-cae2-737d-9155-4266068facfe # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
-    cellLabel: loyal_revenue_by_year
+  - cellType: MARKDOWN
+    cellId: 01a109e2-48b2-72fc-bf9c-9e37f6b4592e # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: "Follow-ups: Tables as loss leader"
     config:
       source: |-
-        SELECT
-            CASE WHEN orders >= {{ minimum_orders }} THEN 'Loyal' ELSE 'Not loyal' END AS customer_group
-            ,COUNT(DISTINCT customer_key) AS customers
-            ,SUM(sales) AS revenue
-            ,SUM(sales) / COUNT(DISTINCT customer_key) AS revenue_per_customer
-            ,SUM(profit) AS profit
-            ,COUNT(DISTINCT customer_key) / SUM(COUNT(DISTINCT customer_key)) OVER () AS share_of_customers
-            ,SUM(sales) / SUM(SUM(sales)) OVER () AS share_of_revenue
-        FROM customer_lines
-        WHERE ({{ order_year }} = 'All' OR CAST(YEAR(order_date) AS VARCHAR) = {{ order_year }})
-        GROUP BY 1
-        ORDER BY 1
-      dataFrameCell: true
-      dataConnectionId: null
-      resultVariableName: loyal_revenue_by_year
-      useRichDisplay: true
-      enablePreview: true
-      sqlCellOutputType: PANDAS
-      useQueryMode: false
-      castDecimals: true
-      useNativeDates: true
-      outputFilteredResult: true
-      allowDuplicateColumns: false
-      tableDisplayConfig:
-        pageSize: 50
-        height: null
-        hideIcons: false
-        defaultColumnWidth: null
-        hideIndex: false
-        defaultSortColumn: null
-        defaultSortIndexColumn: null
-        defaultSortDirection: ASC
-        conditionalFormatting: null
-        calcs: null
-        filters: null
-        columnProperties:
-          - originalName: customer_group
-            renameTo: null
-            size: 141
-            wrapText: null
-            displayFormat: null
-          - originalName: customers
-            renameTo: null
-            size: 109
-            wrapText: null
-            displayFormat: null
-          - originalName: order_year
-            renameTo: null
-            size: 111
-            wrapText: null
-            displayFormat: null
-          - originalName: profit
-            renameTo: null
-            size: 81
-            wrapText: null
-            displayFormat:
-              format: FINANCIAL
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: -1
-              abbreviateLargeNumbers: true
-          - originalName: revenue
-            renameTo: null
-            size: 95
-            wrapText: null
-            displayFormat:
-              format: FINANCIAL
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: true
-          - originalName: revenue_per_customer
-            renameTo: null
-            size: 176
-            wrapText: null
-            displayFormat:
-              format: FINANCIAL
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: true
-          - originalName: row-index-0
-            renameTo: null
-            size: 40
-            wrapText: null
-            displayFormat: null
-          - originalName: share_of_customers
-            renameTo: null
-            size: 165
-            wrapText: null
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: share_of_profit
-            renameTo: null
-            size: 158
-            wrapText: null
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: share_of_revenue
-            renameTo: null
-            size: 147
-            wrapText: null
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-          - originalName: share_of_sales
-            renameTo: null
-            size: 158
-            wrapText: null
-            displayFormat:
-              format: PERCENT
-              currency: USD
-              nanFormat: "null"
-              columnType: NUMBER
-              showSeparators: true
-              numDecimalDigits: 0
-              abbreviateLargeNumbers: false
-        columnOrdering: null
-        customColumnOrdering: null
-        pinnedColumns: null
-        hiddenColumns: null
-        pinIndexColumns: false
-        showAggregations: false
-        columnAggregations: null
+        ### Next Steps: Analyze ROI on Tables 
+        - **Tables open the door, other categories pay the bills.** Tables-first customers have the highest loyal rate (~43%), yet Tables lose money for loyal buyers (-10% margin, ~-$44K). Check whether high-margin categories (Copiers, Phones, Bookcases, Appliances) cover the loss.
+        - **Fix price, not assortment.** Test whether Tables' negative margin is discount-driven (margin by discount band), rather than cutting Tables.
+        - **Prove the loss leader pays off.** Compare lifetime profit of customers whose first order included Tables vs. everyone else, by market (correlation vs. causation caveat).
 appLayout:
   visibleMetadataFields:
     - NAME
@@ -2252,18 +1981,16 @@ genAppFiles:
   - path: App.js
     contents: |
       import "app/app.css";
-      import { React, render } from "app/_data.js";
+      import { React, render, useHexData } from "app/_data.js";
       import { HexSlider, HexDropdown } from "app/controls.js";
       import { TIERS } from "app/format.js";
       import {
         Takeaway,
         HeadlineComparison,
         ProfitGainByMarket,
-        ThresholdChart,
         GatewayProducts,
         SecondOrderSpeed,
         MarketLoyalty,
-        SegmentLoyalty,
         GatewayLift,
         LoyalSpend,
       } from "app/charts.js";
@@ -2281,6 +2008,64 @@ genAppFiles:
         return h("h2", { className: "h2", style: { margin: 0, marginBottom: "var(--space-2)" } }, children);
       }
 
+      function HeadlineHeading() {
+        const state = useHexData("01a10530-cae2-737d-9155-4266068facfe");
+        const rows = state.rows || [];
+        const loyal = rows.find((r) => r.customer_group === "Loyal");
+        const notLoyal = rows.find((r) => r.customer_group === "Not loyal");
+        const loyalRpc = loyal ? Number(loyal.revenue_per_customer) : NaN;
+        const notLoyalRpc = notLoyal ? Number(notLoyal.revenue_per_customer) : NaN;
+        const hasMultiplier = Number.isFinite(loyalRpc) && Number.isFinite(notLoyalRpc) && notLoyalRpc > 0;
+        const multiplier = hasMultiplier ? Math.round((loyalRpc / notLoyalRpc) * 10) / 10 : null;
+        const style = { margin: 0, marginBottom: "var(--space-2)" };
+        return hasMultiplier
+          ? h("h2", { className: "h2", style }, `Loyal Customers Drive ${multiplier}x Revenue`)
+          : h("h2", { className: "h2", style }, "Loyal Customers Drive More Revenue");
+      }
+
+      function GatewayHeading() {
+        const state = useHexData("01a10379-0dd0-7643-a8ea-34f5a7d2318c");
+        const rows = state.rows || [];
+        const sorted = rows
+          .filter((r) => r.sub_category != null && Number.isFinite(Number(r.loyal_rate)))
+          .sort((a, b) => Number(b.loyal_rate) - Number(a.loyal_rate));
+        const style = { margin: 0, marginBottom: "var(--space-2)" };
+        const top = sorted[0];
+        const second = sorted[1];
+        if (top && second) {
+          return h("h2", { className: "h2", style },
+            `Customers whose first purchase is ${top.sub_category} or ${second.sub_category} are the most likely to become loyal`);
+        }
+        if (top) {
+          return h("h2", { className: "h2", style },
+            `Customers whose first purchase is ${top.sub_category} are the most likely to become loyal`);
+        }
+        return h("h2", { className: "h2", style }, "A customer's first purchase shapes how likely they are to become loyal");
+      }
+
+      function LoyalSpendHeading() {
+        const state = useHexData("01a104c2-60c0-7248-97f9-eccd14264402");
+        const rows = state.rows || [];
+        const negatives = rows
+          .filter((r) => r.sub_category != null && Number.isFinite(Number(r.loyal_profit)) && Number(r.loyal_profit) < 0)
+          .sort((a, b) => Number(a.loyal_profit) - Number(b.loyal_profit))
+          .map((r) => r.sub_category);
+        const style = { margin: 0, marginBottom: "var(--space-2)" };
+        const list = (arr) => arr.length <= 1
+          ? (arr[0] || "")
+          : arr.slice(0, -1).join(", ") + " and " + arr[arr.length - 1];
+        if (negatives.length === 1) {
+          return h("h2", { className: "h2", style },
+            `Loyal customers are profitable in every sub-category except ${negatives[0]}, which loses money despite winning loyalty`);
+        }
+        if (negatives.length > 1) {
+          return h("h2", { className: "h2", style },
+            `Loyal customers are profitable in most sub-categories, but lose money on ${list(negatives)}`);
+        }
+        return h("h2", { className: "h2", style },
+          "Loyal customers spend profitably across every sub-category");
+      }
+
       function Section({ children, style }) {
         return h("section", { style: Object.assign({
           display: "flex", flexDirection: "column", gap: "var(--space-4)",
@@ -2293,6 +2078,13 @@ genAppFiles:
           height: 1, margin: "var(--space-12) 0 0",
           background: "linear-gradient(90deg, transparent, var(--color-border), transparent)",
         } });
+      }
+
+      function Source({ children }) {
+        return h("div", { style: {
+          marginTop: "var(--space-2)", fontSize: "var(--text-xs)",
+          color: "var(--color-text-muted)",
+        } }, "Source: ", h("code", null, children));
       }
 
       function TierLegend() {
@@ -2322,17 +2114,6 @@ genAppFiles:
             },
           },
           h("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)" } },
-            h("span", { style: { fontSize: "var(--text-lg)", fontWeight: "var(--font-weight-semibold)", color: "var(--color-text)" } }, "Loyalty pays off"),
-            h("span", { style: { fontSize: "var(--text-xs)", color: "var(--color-text-muted)" } }, "Why repeat customers, not discounts, drive the business"),
-          ),
-          h("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)", minWidth: 240 } },
-            h(HexSlider, {
-              cellRef: "01a102fe-bec2-76ba-9aaa-a60a8f24ac81",
-              label: "Orders needed to count as loyal",
-              formatValue: (v) => v + (v === 1 ? " order" : " orders"),
-            }),
-            h("span", { style: { fontSize: "var(--text-xs)", color: "var(--color-text-muted)" } },
-              "Updates every chart except the Converting Regulars what-if below."),
           ),
         );
       }
@@ -2348,9 +2129,9 @@ genAppFiles:
 
             // Intro
             h(Section, { style: { paddingTop: "var(--space-10)" } },
-              h("h1", { className: "h1", style: { margin: 0, maxWidth: "18ch" } }, "A small group of loyal customers carries the business"),
+              h("h1", { className: "h1", style: { margin: 0, maxWidth: "18ch" } }, "How to Build Customer Loyalty @Superstore 🛒"),
               h("p", { style: { margin: 0, maxWidth: "62ch", color: "var(--color-text-muted)", fontSize: "var(--text-lg)", lineHeight: "var(--leading-relaxed)" } },
-                "We group customers by how many orders they place. Loyal customers are a minority, but they punch far above their weight on revenue, and the way to grow them is not cheaper prices."),
+                "Loyal customers (7+ orders) make up a third of Superstore\u0027s customer base and 55% of revenue. This analysis looks at each market to show how first-time buyers become loyal, and where to focus next"),
               h(TierLegend),
             ),
 
@@ -2358,28 +2139,49 @@ genAppFiles:
 
             // Headline comparison
             h(Section, null,
-              h(Eyebrow, null, "The headline"),
-              h(SectionHeading, null, "Loyal customers are few, but worth more"),
-              h("div", { style: { display: "flex", justifyContent: "flex-start" } },
-                h(HexDropdown, { cellRef: "01a1086b-420b-70e8-bc12-99eb6a7fedaa", label: "Order year" }),
+              h("div", { style: { display: "flex", flexWrap: "wrap", alignItems: "flex-end", gap: "var(--space-6)" } },
+                h("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)", minWidth: 240, maxWidth: 360 } },
+                  h(HexSlider, {
+                    cellRef: "01a102fe-bec2-76ba-9aaa-a60a8f24ac81",
+                    label: "Orders needed to count as loyal",
+                    formatValue: (v) => v + (v === 1 ? " order" : " orders"),
+                  }),
+                  h("span", { style: { fontSize: "var(--text-xs)", color: "var(--color-text-muted)" } },
+                    "Loyalty is based on lifetime orders; the Year and Market filters apply to every chart"),
+                ),
+                h(HexDropdown, { cellRef: "01a1086b-420b-70e8-bc12-99eb6a7fedaa", label: "Year" }),
+                h(HexDropdown, { cellRef: "01a10506-86b9-72e4-bdfb-50b6b42a2f23", label: "Market" }),
               ),
+              h(HeadlineHeading),
               h(HeadlineComparison),
-              h(Takeaway, null, "Loyal customers make up a small slice of the base yet bring in a much larger slice of revenue."),
+              h(Source, null, "loyal_revenue_by_year"),
             ),
+
+            h(Divider),
+
+            // Drill-down
+            h(Section, null,
+              h(SectionHeading, null, "Geographic Distribution"),
+              h("div", null,
+                h(MarketLoyalty),
+                h(Source, null, "market_loyalty"),
+              ),
+            ),
+
+            h(Divider),
 
             // What-if
             h(Section, null,
-              h(Eyebrow, null, "What if"),
-              h(SectionHeading, null, "Converting Regulars to Loyal"),
+              h(SectionHeading, null, "Turning Regulars into Loyal customers adds the most profit in EU and APAC"),
               h("p", { style: { margin: 0, maxWidth: "62ch", color: "var(--color-text-muted)", fontSize: "var(--text-sm)" } },
-                "This view uses the fixed Regular (4\u20136) and Loyal (7+) tiers, so it ignores the slider above."),
+                "This view uses the fixed Regular (4–6) and Loyal (7+) tiers"),
               h("div", {
                 style: {
                   display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(220px, 1fr)",
                   gap: "var(--space-6)", alignItems: "start",
                 },
               },
-                h("div", null, h(ProfitGainByMarket)),
+                h("div", null, h(ProfitGainByMarket), h(Source, null, "market_conversion")),
                 h("div", {
                   style: {
                     background: "var(--color-bg-muted)", borderRadius: "var(--radius)",
@@ -2396,69 +2198,32 @@ genAppFiles:
                   }),
                 ),
               ),
-              h(Takeaway, null, "Even a modest conversion of Regulars into Loyal customers adds meaningful profit, and the biggest markets have the most to gain."),
-            ),
-
-            h(Divider),
-
-            // How we defined loyalty
-            h(Section, null,
-              h(Eyebrow, null, "How we defined loyalty"),
-              h(SectionHeading, null, "Where the loyal line sits"),
-              h(ThresholdChart),
-              h(Takeaway, null, "Raising the order threshold narrows the loyal group sharply; the highlighted bar marks the cutoff you selected above."),
             ),
 
             h(Divider),
 
             // What drives loyalty
             h(Section, null,
-              h(Eyebrow, null, "What drives loyalty"),
-              h(SectionHeading, null, "A fast second order, not a discount"),
+              h(GatewayHeading),
               h(GatewayProducts),
-              h(Takeaway, null, "What a customer buys first shifts how likely they are to become loyal, so first-order mix matters more than price cuts."),
+              h(Source, null, "gateway_products"),
+              h("div", { style: { marginTop: "var(--space-8)" }, "data-testid": "gateway-lift-wrap" },
+                h(GatewayLift),
+                h(Source, null, "gateway_lift_by_market"),
+              ),
+              h("div", { style: { marginTop: "var(--space-8)" } },
+                h(LoyalSpendHeading),
+                h(LoyalSpend),
+                h(Source, null, "loyal_spend"),
+              ),
               h("div", {
                 style: {
                   display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: "var(--space-4)",
                   marginTop: "var(--space-8)",
                 },
               },
-                h("div", { style: { display: "flex", justifyContent: "flex-start" } },
-                  h(HexDropdown, { cellRef: "01a10506-86b9-72e4-bdfb-50b6b42a2f23", label: "Market" }),
-                ),
                 h(SecondOrderSpeed),
-                h(Takeaway, null, "Customers who come back for a second order quickly are far more likely to become loyal."),
-              ),
-            ),
-
-            h(Divider),
-
-            // Drill-down
-            h(Section, null,
-              h(Eyebrow, null, "Drill-down"),
-              h(SectionHeading, null, "Where loyalty lives today"),
-              h("div", {
-                style: {
-                  display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-                  gap: "var(--space-8)",
-                },
-              },
-                h("div", null,
-                  h(MarketLoyalty),
-                  h(Takeaway, null, "Loyalty rates vary widely by market, pointing to where retention effort pays off most."),
-                ),
-                h("div", null,
-                  h(SegmentLoyalty),
-                  h(Takeaway, null, "Some customer segments are structurally more loyal than others."),
-                ),
-              ),
-              h("div", { style: { marginTop: "var(--space-8)" } },
-                h(LoyalSpend),
-                h(Takeaway, null, "Loyal customers concentrate their spend in a handful of sub-categories, and those are not always the highest-margin ones."),
-              ),
-              h("div", { style: { marginTop: "var(--space-8)" } },
-                h(GatewayLift),
-                h(Takeaway, null, "Starting with furniture lifts the loyal rate in most markets, confirming the gateway effect of the first order."),
+                h(Source, null, "second_order_speed"),
               ),
             ),
           ),
@@ -2747,7 +2512,11 @@ genAppFiles:
       import { React, useHexData } from "app/_data.js";
       import { CartesianChart } from "app/components/CartesianChart.js";
       import { BarLineCombo } from "app/components/BarLineCombo.js";
-      import { fmtPct } from "app/format.js";
+      import { DonutChart } from "app/components/DonutChart.js";
+      import { fmtPct, fmtMoney0, MONEY_FORMAT } from "app/format.js";
+
+      // Shared Loyal / Not loyal color mapping, used by both headline donuts.
+      const LOYALTY_COLORS = { "Loyal": "var(--viz-1)", "Not loyal": "var(--viz-10)" };
 
       var h = React.createElement;
 
@@ -2796,33 +2565,52 @@ genAppFiles:
       // ---- Headline: loyal vs not loyal, customer share vs revenue share ----
       export function HeadlineComparison() {
         const state = useHexData("01a10530-cae2-737d-9155-4266068facfe");
-        const data = React.useMemo(() => {
-          const out = [];
-          (state.rows || []).forEach((r) => {
-            out.push({ group: r.customer_group, metric: "Customer share", value: r.share_of_customers });
-            out.push({ group: r.customer_group, metric: "Revenue share", value: r.share_of_revenue });
-          });
-          return out;
-        }, [state.rows]);
+        const rows = state.rows || [];
+        const customerData = React.useMemo(
+          () => rows.map((r) => ({ group: r.customer_group, customers: r.customers })),
+          [state.rows],
+        );
+        const revenueData = React.useMemo(
+          () => rows.map((r) => ({ group: r.customer_group, revenue: r.revenue })),
+          [state.rows],
+        );
         return h(Frame, { state, minHeight: 320 },
-          h(CartesianChart, {
-            instanceId: "loyal-vs-not-share",
-            data,
-            title: "Loyal vs. not loyal: share of customers and revenue",
-            markMode: "grouped-bar",
-            baseAxisField: "group",
-            valueAxisField: "value",
-            colorField: "metric",
-            baseAxisCategoricalOrder: ["Loyal", "Not loyal"],
-            colorCategoricalMap: { "Customer share": "var(--viz-7)", "Revenue share": "var(--viz-1)" },
-            valueAxisTitle: "Share of Total",
-            valueAxisNumericFormat: ".0%",
-            baseAxisTitle: "",
-            dataLabelsVisible: true,
-            dataLabelNumericFormat: ".0%",
-            legendPosition: "top",
-            height: 340,
-          }),
+          h("div", null,
+            h("div", {
+              style: {
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: "var(--space-4)",
+              },
+            },
+              h(DonutChart, {
+                instanceId: "loyal-vs-not-customer-share",
+                data: customerData,
+                title: "Customer share: loyal vs. not loyal",
+                valueField: "customers",
+                colorField: "group",
+                colorCategoricalMap: LOYALTY_COLORS,
+                colorCategoricalOrder: ["Loyal", "Not loyal"],
+                valueNumericFormat: ",.0f",
+                dataLabelsVisible: true,
+                legendPosition: "bottom",
+                height: 320,
+              }),
+              h(DonutChart, {
+                instanceId: "loyal-vs-not-revenue-share",
+                data: revenueData,
+                title: "Revenue share: loyal vs. not loyal",
+                valueField: "revenue",
+                colorField: "group",
+                colorCategoricalMap: LOYALTY_COLORS,
+                colorCategoricalOrder: ["Loyal", "Not loyal"],
+                valueNumericFormat: MONEY_FORMAT,
+                dataLabelsVisible: true,
+                legendPosition: "bottom",
+                height: 320,
+              }),
+            ),
+          ),
         );
       }
 
@@ -2843,55 +2631,35 @@ genAppFiles:
             baseAxisField: "market",
             valueAxisField: "profit_gain",
             valueAxisTitle: "Profit Gain ($)",
-            valueAxisNumericFormat: "$~s",
+            valueAxisNumericFormat: MONEY_FORMAT,
+            valueAxisNumericMin: -10000,
+            valueAxisNumericMax: 30000,
             baseAxisCategoricalOrder: "-value",
             dataLabelsVisible: true,
-            dataLabelNumericFormat: "$~s",
-            height: 340,
-          }),
-        );
-      }
-
-      // ---- Loyalty threshold curve ----
-      export function ThresholdChart() {
-        const state = useHexData("01a102af-02ee-77fd-8313-2b738eb5db31");
-        const data = React.useMemo(
-          () => (state.rows || []).map((r) => ({
-            orders: r.orders,
-            share: r.share_at_or_above,
-            kind: r.is_selected_threshold ? "Selected threshold" : "Other",
-          })),
-          [state.rows],
-        );
-        return h(Frame, { state, minHeight: 320 },
-          h(CartesianChart, {
-            instanceId: "loyalty-threshold",
-            data,
-            title: "Share of customers with at least N orders",
-            markMode: "grouped-bar",
-            baseAxisField: "orders",
-            baseAxisType: "numeric",
-            baseAxisNumericFormat: "d",
-            valueAxisField: "share",
-            colorField: "kind",
-            colorCategoricalMap: { "Selected threshold": "var(--viz-1)", "Other": "var(--viz-10)" },
-            colorCategoricalOrder: ["Selected threshold", "Other"],
-            valueAxisTitle: "Share of Customers",
-            valueAxisNumericFormat: ".0%",
-            baseAxisTitle: "Minimum Order Count",
-            legendPosition: "top",
+            dataLabelNumericFormat: MONEY_FORMAT,
             height: 340,
           }),
         );
       }
 
       // ---- generic single-metric rate bar ----
-      function RateBar({ cellRef, instanceId, title, baseField, valueField, baseTitle, valueTitle, orientation, order, height, minHeight }) {
+      function RateBar({ cellRef, instanceId, title, baseField, valueField, baseTitle, valueTitle, orientation, order, height, minHeight, extraTooltipFields, tooltipHideValueRow }) {
         const state = useHexData(cellRef);
         const data = React.useMemo(
           () => (state.rows || []).map((r) => ({ [baseField]: r[baseField], [valueField]: r[valueField] })),
           [state.rows, baseField, valueField],
         );
+        const tooltipExtraByBase = React.useMemo(() => {
+          if (!extraTooltipFields || !extraTooltipFields.length) return undefined;
+          const map = {};
+          (state.rows || []).forEach((r) => {
+            map[r[baseField]] = extraTooltipFields.map((f) => ({
+              label: f.label,
+              value: f.format ? f.format(r[f.field]) : r[f.field],
+            }));
+          });
+          return map;
+        }, [state.rows, baseField, extraTooltipFields]);
         return h(Frame, { state, minHeight: minHeight || 300 },
           h(CartesianChart, {
             instanceId,
@@ -2902,11 +2670,13 @@ genAppFiles:
             baseAxisField: baseField,
             valueAxisField: valueField,
             baseAxisCategoricalOrder: order || "-value",
+            tooltipHideValueRow: tooltipHideValueRow || false,
             valueAxisTitle: valueTitle,
             valueAxisNumericFormat: ".0%",
             baseAxisTitle: baseTitle || "",
             dataLabelsVisible: true,
             dataLabelNumericFormat: ".0%",
+            tooltipExtraByBase,
             height: height || 320,
           }),
         );
@@ -2940,35 +2710,102 @@ genAppFiles:
         });
       }
 
+      // Join a list of names into natural English: "A", "A and B", "A, B and C".
+      function joinNames(names) {
+        if (names.length === 0) return "";
+        if (names.length === 1) return names[0];
+        if (names.length === 2) return names[0] + " and " + names[1];
+        return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+      }
+
+      function buildMarketLoyaltyTitle(rows) {
+        const valid = (rows || [])
+          .filter((r) => r.market != null && Number.isFinite(Number(r.loyal_rate)))
+          .map((r) => ({ market: r.market, rate: Number(r.loyal_rate) }))
+          .sort((a, b) => b.rate - a.rate);
+        if (valid.length === 0) return "Loyal rate by market";
+        if (valid.length === 1) {
+          const m = valid[0];
+          return `${m.market} converts ${fmtPct(m.rate)} of customers into loyal buyers`;
+        }
+        const strong = valid.filter((r) => r.rate >= 0.25).map((r) => r.market);
+        const weak = valid.filter((r) => r.rate < 0.1).map((r) => r.market);
+        if (strong.length && weak.length) {
+          return `Loyalty is strong in ${joinNames(strong)} but nearly absent in ${joinNames(weak)}`;
+        }
+        if (strong.length) {
+          return `Loyalty is strong in ${joinNames(strong)}`;
+        }
+        if (weak.length) {
+          return `Loyalty is nearly absent in ${joinNames(weak)}`;
+        }
+        const top = valid[0];
+        return `${top.market} leads loyalty at ${fmtPct(top.rate)}`;
+      }
+
       export function MarketLoyalty() {
+        const state = useHexData("01a10308-ea57-7158-81fd-4085f869fcaf");
+        const title = React.useMemo(() => buildMarketLoyaltyTitle(state.rows), [state.rows]);
         return h(RateBar, {
           cellRef: "01a10308-ea57-7158-81fd-4085f869fcaf",
           instanceId: "market-loyalty",
-          title: "Loyal rate by market",
+          title,
           baseField: "market",
           valueField: "loyal_rate",
           valueTitle: "Loyal Rate",
+          tooltipHideValueRow: true,
+          extraTooltipFields: [
+            { field: "profit_per_loyal_customer", label: "Profit per loyal customer", format: (v) => fmtMoney0(v) },
+          ],
           height: 320,
         });
       }
 
-      export function SegmentLoyalty() {
-        return h(RateBar, {
-          cellRef: "01a104bb-14c3-776f-9b40-f22c8f05ff0f",
-          instanceId: "segment-loyalty",
-          title: "Loyal rate by segment",
-          baseField: "customer_segments",
-          valueField: "loyal_rate",
-          valueTitle: "Loyal Rate",
-          height: 300,
-        });
+      // gateway_lift is a fraction (0.09 = +9 pts). Boosters lift loyalty by >= +3 pts,
+      // drags lower it by <= -3 pts; rows between are treated as roughly neutral.
+      function liftPts(rate) {
+        return Math.round(rate * 100);
+      }
+      function fmtLiftPts(rate) {
+        const p = liftPts(rate);
+        return (p >= 0 ? "+" : "") + p + " pts";
+      }
+
+      function buildGatewayLiftTitle(rows) {
+        const valid = (rows || [])
+          .filter((r) => r.market != null && Number.isFinite(Number(r.gateway_lift)))
+          .map((r) => ({ market: r.market, lift: Number(r.gateway_lift) }))
+          .sort((a, b) => b.lift - a.lift);
+        if (valid.length === 0) return "Furniture-first loyalty lift by market";
+        if (valid.length === 1) {
+          const m = valid[0];
+          const p = liftPts(m.lift);
+          if (p >= 3) return `A furniture-first purchase lifts loyalty in ${m.market} (${fmtLiftPts(m.lift)})`;
+          if (p <= -3) return `A furniture-first purchase lowers loyalty in ${m.market} (${fmtLiftPts(m.lift)})`;
+          return `A furniture-first purchase barely moves loyalty in ${m.market} (${fmtLiftPts(m.lift)})`;
+        }
+        const label = (arr) => joinNames(arr.map((r) => `${r.market} (${fmtLiftPts(r.lift)})`));
+        const boosters = valid.filter((r) => liftPts(r.lift) >= 3);
+        const drags = valid.filter((r) => liftPts(r.lift) <= -3);
+        if (boosters.length && drags.length) {
+          return `A furniture-first purchase lifts loyalty in ${label(boosters)} but lowers it in ${label(drags)}`;
+        }
+        if (boosters.length) {
+          return `A furniture-first purchase lifts loyalty in ${label(boosters)}`;
+        }
+        if (drags.length) {
+          return `A furniture-first purchase lowers loyalty in ${label(drags)}`;
+        }
+        return "A furniture-first purchase barely moves loyalty across markets";
       }
 
       export function GatewayLift() {
+        const state = useHexData("01a1052d-6e09-746e-964e-070d0739407e");
+        const title = React.useMemo(() => buildGatewayLiftTitle(state.rows), [state.rows]);
         return h(RateBar, {
           cellRef: "01a1052d-6e09-746e-964e-070d0739407e",
           instanceId: "gateway-lift",
-          title: "Furniture-first loyalty lift by market",
+          title,
           baseField: "market",
           valueField: "gateway_lift",
           valueTitle: "Loyal Rate Lift",
@@ -2984,14 +2821,18 @@ genAppFiles:
             sub_category: r.sub_category,
             share_of_loyal_spend: r.share_of_loyal_spend,
             margin: r.margin,
+            loyal_profit: r.loyal_profit,
+            avg_sales_per_loyal_buyer: r.avg_sales_per_loyal_buyer,
+            avg_profit_per_loyal_buyer: r.avg_profit_per_loyal_buyer,
           })),
           [state.rows],
         );
-        return h(Frame, { state, minHeight: 380 },
+        return h("div", { "data-testid": "loyal-spend-wrap" },
+         h(Frame, { state, minHeight: 560 },
           h(BarLineCombo, {
             instanceId: "loyal-spend",
             data,
-            title: "Where loyal customers spend, and its margin",
+            title: "",
             baseAxisField: "sub_category",
             barValueAxisField: "share_of_loyal_spend",
             lineValueAxisField: "margin",
@@ -3000,16 +2841,47 @@ genAppFiles:
             barValueAxisNumericFormat: ".0%",
             lineValueAxisTitle: "Margin",
             lineValueAxisNumericFormat: ".0%",
-            baseAxisLabelOrientation: "diagonal",
-            height: 380,
+            orientation: "horizontal",
+            height: 560,
+            barNegativeColorField: "loyal_profit",
+            extraTooltipFields: [
+              { label: "Avg sales per loyal buyer", field: "avg_sales_per_loyal_buyer", format: "$,.0f" },
+              { label: "Avg profit per loyal buyer", field: "avg_profit_per_loyal_buyer", format: "$,.0f" },
+              { label: "Total profit", field: "loyal_profit", format: "$.2~s" },
+            ],
           }),
-        );
+        ));
       }
   - path: componentValues.json
     contents: |
       {
         "byType": {},
-        "byInstance": {}
+        "byInstance": {
+          "CartesianChart::second-order-speed": {
+            "title": "Second-Order Timing Predicts Customer Loyalty"
+          },
+          "DonutChart::loyal-vs-not-customer-share": {
+            "title": "Customers",
+            "valueNumericFormat": ".0~s"
+          },
+          "DonutChart::loyal-vs-not-revenue-share": {
+            "title": "Revenue",
+            "valueNumericFormat": "$.2s"
+          },
+          "CartesianChart::profit-gain-by-market": {
+            "valueAxisNumericFormat": "$.2s",
+            "dataLabelNumericFormat": "$.2s",
+            "valueAxisNumericMin": -10000,
+            "valueAxisNumericMax": 30000,
+            "title": "Added profit if Regulars convert to Loyal"
+          },
+          "BarLineCombo::loyal-spend": {
+            "title": ""
+          },
+          "CartesianChart::gateway-lift": {
+            "title": "Buying furniture first boosts loyalty in the EU and US, but lowers it in APAC"
+          }
+        }
       }
   - path: components/BarLineCombo.interface.json
     contents: |
@@ -3906,6 +3778,11 @@ genAppFiles:
               lineValueAxisNumericIncludeZero: props.lineValueAxisNumericIncludeZero ?? true,
               // Color
               colorCategoricalMap: props.colorCategoricalMap,
+              // Conditional bar color: bars whose numeric field < 0 use barNegativeColor.
+              barNegativeColorField: props.barNegativeColorField,
+              barNegativeColor: props.barNegativeColor,
+              // Extra tooltip rows: [{ label, field, format }]
+              extraTooltipFields: props.extraTooltipFields,
               // Data Labels
               barDataLabelsVisible: props.barDataLabelsVisible ?? false,
               barDataLabelNumericFormat: props.barDataLabelNumericFormat,
@@ -4306,12 +4183,22 @@ genAppFiles:
               width: innerWidth,
               height: innerHeight,
           });
+          const negativeColor = p.barNegativeColor || c.danger || "#d64242";
+          function fillOf(d) {
+              if (p.barNegativeColorField && +d[p.barNegativeColorField] < 0)
+                  return negativeColor;
+              return barColor;
+          }
+          const extraTooltipFields = Array.isArray(p.extraTooltipFields) ? p.extraTooltipFields : [];
+          const extraFormatters = extraTooltipFields.map(function (f2) {
+              return numberFormatter(f2.format, ",.2~f");
+          });
           const tooltip = createTooltip(container);
           function tipHtml(d) {
-              return buildTooltipHtml([
+              const rows = [
                   { header: formatBaseAxis(String(d[p.baseAxisField])) },
                   {
-                      color: barColor,
+                      color: fillOf(d),
                       label: p.barValueAxisTitle || p.barValueAxisField,
                       value: formatBarTip(barValue(d)),
                   },
@@ -4320,7 +4207,15 @@ genAppFiles:
                       label: p.lineValueAxisTitle || p.lineValueAxisField,
                       value: formatLineTip(lineValue(d)),
                   },
-              ]);
+              ];
+              extraTooltipFields.forEach(function (f2, i) {
+                  const raw = d[f2.field];
+                  rows.push({
+                      label: f2.label,
+                      value: raw == null ? "\u2014" : extraFormatters[i](+raw),
+                  });
+              });
+              return buildTooltipHtml(rows);
           }
           function keyOf(d) {
               return String(d[p.baseAxisField]);
@@ -4345,7 +4240,7 @@ genAppFiles:
               .selectAll(".bar")
               .data(prepared.data)
               .join("rect")
-              .attr("fill", barColor)
+              .attr("fill", fillOf)
               .on("mouseover", function (_event, d) {
               tooltip.html(tipHtml(d)).style("opacity", 1);
           })
@@ -5997,6 +5892,7 @@ genAppFiles:
               baseAxisNumericFormat: props.baseAxisNumericFormat,
               baseAxisNumericIncludeZero: props.baseAxisNumericIncludeZero ?? false,
               // Value Axis
+              tooltipHideValueRow: props.tooltipHideValueRow ?? false,
               valueAxisTitle: props.valueAxisTitle ?? "",
               valueAxisNumericFormat: props.valueAxisNumericFormat,
               valueAxisNullHandling: props.valueAxisNullHandling ?? "gap",
@@ -6820,16 +6716,23 @@ genAppFiles:
           function showTooltip(event, d) {
               if (p.hoverMode !== "mark")
                   return;
-              tooltip
-                  .html(buildTooltipHtml([
-                  { header: formatTooltipBase(d.baseKey) },
-                  {
+              const extraRows = p.tooltipExtraByBase && p.tooltipExtraByBase[d.baseKey]
+                  ? p.tooltipExtraByBase[d.baseKey]
+                  : [];
+              const valueRow = p.tooltipHideValueRow
+                  ? []
+                  : [{
                       label: p.colorField
                           ? d.seriesKey
                           : p.valueAxisTitle || p.valueAxisField,
                       color: colorOf(d.seriesKey),
                       value: cartesianTooltipValue(d, p),
-                  },
+                  }];
+              tooltip
+                  .html(buildTooltipHtml([
+                  { header: formatTooltipBase(d.baseKey) },
+                  ...valueRow,
+                  ...extraRows,
               ]))
                   .style("opacity", 1);
               positionTooltip(tooltip, event, container);
@@ -9217,6 +9120,728 @@ genAppFiles:
           }, h(BasePopover.Popup, { style: popoverContentStyle }, renderCalendar())))));
       }
       export default DatePicker;
+  - path: components/DonutChart.interface.json
+    contents: |
+      {
+        "component": "DonutChart",
+        "version": 1,
+        "sections": [
+          {
+            "id": "chart",
+            "label": "Chart",
+            "elements": ["element", "title"]
+          },
+          {
+            "id": "color",
+            "label": "Color",
+            "elements": ["series", "legend"]
+          }
+        ],
+        "properties": [
+          {
+            "key": "title",
+            "label": "Title",
+            "element": "title",
+            "type": "string",
+            "description": "Chart heading; default empty (no heading)."
+          },
+          {
+            "key": "height",
+            "label": "Height",
+            "element": "element",
+            "type": "number",
+            "min": 200,
+            "max": 800,
+            "step": 20,
+            "description": "Chart height in pixels; default 300. Width follows the container."
+          },
+          {
+            "key": "holeSize",
+            "label": "Hole size",
+            "element": "element",
+            "type": "percent",
+            "min": 0,
+            "max": 0.95,
+            "description": "Inner radius as a fraction of outer radius; default 0.45, clamped to 0–0.95. Set 0 for a pie."
+          },
+          {
+            "key": "colorCategoricalOrder",
+            "hidden": true,
+            "label": "Slice order",
+            "description": "Default -value: largest first. Arrays put exact keys first, then unlisted keys alphabetically. Ties alphabetical; absent keys ignored; Other last.",
+            "element": "series",
+            "type": "enumOrStringArray",
+            "options": [
+              {
+                "value": "label",
+                "label": "Label A to Z"
+              },
+              {
+                "value": "-label",
+                "label": "Label Z to A"
+              },
+              {
+                "value": "value",
+                "label": "Value, low to high"
+              },
+              {
+                "value": "-value",
+                "label": "Value, high to low"
+              }
+            ]
+          },
+          {
+            "key": "colorCategoricalMap",
+            "label": "Color",
+            "element": "series",
+            "type": "colorMap",
+            "description": "Sparse category-key to CSS color map; omitted keys use the palette. Applies to every mark with that key."
+          },
+          {
+            "key": "maxSegments",
+            "label": "Max slices",
+            "description": "Maximum slices including Other; default 6. Above the cap, keep the largest cap-1 categories and bucket the rest; otherwise keep all.",
+            "element": "series",
+            "type": "number",
+            "min": 3,
+            "max": 12,
+            "step": 1
+          },
+          {
+            "key": "valueNumericFormat",
+            "hidden": true,
+            "label": "Number format",
+            "element": "element",
+            "type": "string",
+            "stringFormat": "d3-number",
+            "description": "D3 format for raw tooltip values and center total; \"auto\" uses ,.2~f. Does not format slice-share labels. Empty hides text.",
+            "allowAuto": true
+          },
+          {
+            "key": "dataLabelsVisible",
+            "hidden": true,
+            "label": "Share labels",
+            "element": "element",
+            "type": "boolean",
+            "description": "Show slice-share labels; default false. Slices too thin for the label are skipped."
+          },
+          {
+            "key": "dataLabelNumericFormat",
+            "hidden": true,
+            "label": "Label format",
+            "element": "element",
+            "type": "string",
+            "stringFormat": "d3-number",
+            "description": "D3 format for fractional slice shares; \"auto\" uses .0%. Empty hides text.",
+            "allowAuto": true
+          },
+          {
+            "key": "totalDataLabelsVisible",
+            "hidden": true,
+            "label": "Total in center",
+            "element": "element",
+            "type": "boolean",
+            "description": "Show the raw sum in the hole; default false. Omitted when the hole is too small, including pies. Uses valueNumericFormat."
+          },
+          {
+            "key": "otherLabel",
+            "label": "\"Other\" label",
+            "element": "series",
+            "type": "string",
+            "description": "Bucket label; default Other (also used for an empty string). A real category with that label remains a separate slice."
+          },
+          {
+            "key": "otherColor",
+            "label": "\"Other\" color",
+            "element": "series",
+            "type": "color",
+            "description": "Bucket color; default muted theme text. Separate from colorCategoricalMap, even for a real category named Other."
+          },
+          {
+            "key": "showLegend",
+            "label": "Show legend",
+            "element": "legend",
+            "type": "boolean",
+            "description": "Show the legend; default true."
+          },
+          {
+            "key": "legendPosition",
+            "label": "Legend position",
+            "element": "legend",
+            "type": "enum",
+            "options": [
+              {
+                "value": "right",
+                "label": "Right"
+              },
+              {
+                "value": "top",
+                "label": "Top"
+              },
+              {
+                "value": "bottom",
+                "label": "Bottom"
+              }
+            ],
+            "showIf": {
+              "key": "showLegend",
+              "truthy": true
+            },
+            "description": "Default right. Top and bottom lay entries out horizontally; only used when showLegend is true."
+          },
+          {
+            "key": "legendTitle",
+            "label": "Legend title",
+            "element": "legend",
+            "type": "string",
+            "showIf": {
+              "key": "showLegend",
+              "truthy": true
+            },
+            "description": "Legend heading; default empty (no heading)."
+          }
+        ]
+      }
+  - path: components/DonutChart.js
+    contents: |-
+      /**
+       * DonutChart — Pie/donut slices with optional overflow bucketing.
+       * @version 5.0.0
+       *
+       * The per-prop comments in DonutChartProps are the reference; the build
+       * preserves them in the shipped JavaScript. Editable props also live in
+       * DonutChart.interface.json.
+       *
+       * Overflow grouping: bucketOtherCategories.
+       * Defaults and the draw effect live in DonutChart.
+       * Source edits affect every importing instance; use props or a fork for one chart.
+       *
+       * Usage:
+       *   React.createElement(DonutChart, { data: rows, valueField: "revenue",
+       *     colorField: "region", instanceId: "revenue-by-region" })
+       */
+      import { ChartShell, React, d3, useChartSubregionEditState, useComponentValues, useEditEmitter, } from "app/_data.js";
+      import componentValues from "app/componentValues.json";
+      import { buildTooltipHtml, categoryOrderContext, title as chartTitle, createTooltip, legend, legendFootprint, legendPlacement, numberFormatter, orderCategories, positionTooltip, reportAutoValues, resolveAutoProps, resolveSeriesColors, sumByKey, useChartTheme, useContainerWidth, } from "app/components/_chart.js";
+      // export interface DonutChartProps {
+      //   // Core props
+      //   /**
+      //    * Stable, unique per-instance edit key (e.g. "revenue-by-month"). Pass one so saved edits
+      //    * target this chart alone.
+      //    */
+      //   instanceId?: string;
+      //   /**
+      //    * Rows sharing a color category are summed into one slice. Supply one row per category
+      //    * when aggregation is already done in the query.
+      //    */
+      //   data: Row[];
+      //   /** Required numeric field for slice sizes. */
+      //   valueField: string;
+      //   /**
+      //    * Inner radius as a fraction of outer radius; default 0.45, clamped to 0–0.95. Set 0 for a
+      //    * pie.
+      //    */
+      //   holeSize?: number;
+      // 
+      //   // Value
+      //   /**
+      //    * D3 format for raw tooltip values and center total; "auto" uses ,.2~f. Does not format
+      //    * slice-share labels. Empty hides text.
+      //    */
+      //   valueNumericFormat?: string;
+      // 
+      //   // Color
+      //   /** Required category field; identifies slices, legend entries and color-map keys. */
+      //   colorField: string;
+      //   /**
+      //    * Sparse category-key to CSS color map; omitted keys use the palette. Applies to every
+      //    * mark with that key.
+      //    */
+      //   colorCategoricalMap?: Record<string, string>;
+      //   /**
+      //    * Default -value: largest first. Arrays put exact keys first, then unlisted keys
+      //    * alphabetically. Ties alphabetical; absent keys ignored; Other last.
+      //    */
+      //   colorCategoricalOrder?: CategoricalOrder;
+      //   /**
+      //    * Maximum slices including Other; default 6. Above the cap, keep the largest cap-1
+      //    * categories and bucket the rest; otherwise keep all.
+      //    */
+      //   maxSegments?: number;
+      //   /**
+      //    * Bucket label; default Other (also used for an empty string). A real category with that
+      //    * label remains a separate slice.
+      //    */
+      //   otherLabel?: string;
+      //   /**
+      //    * Bucket color; default muted theme text. Separate from colorCategoricalMap, even for a
+      //    * real category named Other.
+      //    */
+      //   otherColor?: string;
+      //   /** Show the legend; default true. */
+      //   showLegend?: boolean;
+      //   /**
+      //    * Default right. Top and bottom lay entries out horizontally; only used when showLegend is
+      //    * true.
+      //    */
+      //   legendPosition?: LegendPosition;
+      //   /** Legend heading; default empty (no heading). */
+      //   legendTitle?: string;
+      // 
+      //   // Data Labels
+      //   /** Show slice-share labels; default false. Slices too thin for the label are skipped. */
+      //   dataLabelsVisible?: boolean;
+      //   /**
+      //    * Show the raw sum in the hole; default false. Omitted when the hole is too small,
+      //    * including pies. Uses valueNumericFormat.
+      //    */
+      //   totalDataLabelsVisible?: boolean;
+      //   /** D3 format for fractional slice shares; "auto" uses .0%. Empty hides text. */
+      //   dataLabelNumericFormat?: string;
+      // 
+      //   // Misc
+      //   /** Chart heading; default empty (no heading). */
+      //   title?: string;
+      //   /** Chart height in pixels; default 300. Width follows the container. */
+      //   height?: number;
+      // }
+      /** Props whose explicit "auto" overrides code while retaining dynamic defaults. */
+      export const donutChartAutoProps = [
+          "valueNumericFormat",
+          "dataLabelNumericFormat",
+      ];
+      const OTHER_LABEL = "Other";
+      // The bucket's identity, kept out of label space so a real category named
+      // "Other" (or whatever otherLabel is renamed to) stays an ordinary category:
+      // its own palette color, its own panel swatch, ranked on its own value.
+      // Mapped to otherLabel only where slices are drawn or described.
+      export const OTHER_KEY = "__hexOtherSlice__";
+      const DEFAULT_HOLE_SIZE = 0.45;
+      // Beyond this the ring is too thin to read as a slice.
+      const MAX_HOLE_SIZE = 0.95;
+      // How many category colors the chart offers the edit panel. Deliberately
+      // base of maxSegments: raising the cap must not require a round trip
+      // through the agent to recolor the slices it was folding into "Other". It
+      // caps the panel payload only; every plotted slice resolves a color.
+      const MAX_COLOR_KEYS = 50;
+      // Consolidate overflow categories into a single "Other" row when there are
+      // more than maxSegments unique categories: keep the top maxSegments - 1 by
+      // total valueField value, aggregate the rest, so the rendered slice count
+      // never exceeds maxSegments. Returns null when every category already fits
+      // and should render as its own slice.
+      // Bucket rows are keyed by OTHER_KEY and flagged with __other / __otherCount
+      // for color, label, and tooltip.
+      export function bucketOtherCategories(rows, opts) {
+          const totals = new Map();
+          rows.forEach(function (d) {
+              const cat = d[opts.colorField];
+              totals.set(cat, (totals.get(cat) || 0) + +d[opts.valueField]);
+          });
+          if (totals.size <= opts.maxSegments)
+              return null;
+          const ranked = Array.from(totals.keys()).sort(function (a, b) {
+              return ((totals.get(b) || 0) - (totals.get(a) || 0) ||
+                  d3.ascending(String(a), String(b)));
+          });
+          const keepCount = Math.max(1, opts.maxSegments - 1);
+          const rest = ranked.slice(keepCount);
+          const bucketed = ranked.slice(0, keepCount).map(function (cat) {
+              const r = {};
+              r[opts.colorField] = cat;
+              r[opts.valueField] = totals.get(cat) || 0;
+              return r;
+          });
+          let otherTotal = 0;
+          rest.forEach(function (cat) {
+              otherTotal += totals.get(cat) || 0;
+          });
+          const otherRow = {};
+          otherRow[opts.colorField] = OTHER_KEY;
+          otherRow[opts.valueField] = otherTotal;
+          otherRow["__other"] = true;
+          otherRow["__otherCount"] = rest.length;
+          bucketed.push(otherRow);
+          return bucketed;
+      }
+      const h = React.createElement;
+      // eslint-disable-next-line max-lines-per-function -- chart effect is intentionally one block
+      export function DonutChart(rawProps) {
+          const codeDefinedKeys = Object.entries(rawProps)
+              .filter(([, value]) => value != null)
+              .map(([key]) => key);
+          // Per-instance user edits from Hex's edit panel (app/componentValues.json
+          // byInstance + live previews) resolve above call-site props; app-wide
+          // byType values fill only props left unset here — see useComponentValues.
+          const resolved = useComponentValues("DonutChart", rawProps, componentValues);
+          const props = resolveAutoProps(resolved, donutChartAutoProps);
+          // Core props
+          const instanceId = props.instanceId;
+          const data = props.data;
+          const valueField = props.valueField;
+          const holeSize = Math.min(Math.max(props.holeSize !== undefined ? props.holeSize : DEFAULT_HOLE_SIZE, 0), MAX_HOLE_SIZE);
+          // Value
+          const valueNumericFormat = props.valueNumericFormat;
+          // Color
+          const colorField = props.colorField;
+          const colorCategoricalMap = props.colorCategoricalMap;
+          const colorCategoricalOrder = props.colorCategoricalOrder || "-value";
+          const maxSegments = props.maxSegments !== undefined ? props.maxSegments : 6;
+          const showLegend = props.showLegend !== false;
+          const legendPosition = props.legendPosition || "right";
+          const legendTitle = props.legendTitle;
+          // Data Labels
+          const dataLabelsVisible = props.dataLabelsVisible ?? false;
+          const totalDataLabelsVisible = props.totalDataLabelsVisible ?? false;
+          const dataLabelNumericFormat = props.dataLabelNumericFormat;
+          // Misc
+          const title = props.title;
+          const chartHeight = props.height || 300;
+          const { subRegionActive } = useChartSubregionEditState("DonutChart", instanceId);
+          function regionHoverLabel(region) {
+              switch (region) {
+                  case "title":
+                      return "Title";
+                  case "legend":
+                      return "Legend";
+                  default:
+                      return "Chart";
+              }
+          }
+          const theme = useChartTheme();
+          const c = theme.colors;
+          const f = theme.font;
+          const palette = theme.palette;
+          const otherColor = props.otherColor != null ? props.otherColor : c.textMuted;
+          // Blanking the label in the panel reads as "put it back", not "unlabel the
+          // slice" — the bucket always needs something to say.
+          const otherLabel = props.otherLabel ? props.otherLabel : OTHER_LABEL;
+          // Slice keys are data values, except the bucket's.
+          const sliceLabel = React.useCallback(function (key) {
+              return key === OTHER_KEY ? otherLabel : key;
+          }, [otherLabel]);
+          // Edit-mode selections report the RESOLVED values (defaults applied), not
+          // the raw props — otherwise the edit panel would show a control's minimum
+          // where the chart actually renders its default. Unset text props report ""
+          // (the panel renders controls only for reported keys, and an absent title
+          // must still be addable). Rebuilt each render; the emitter serializes at
+          // click time.
+          const editValues = reportAutoValues({
+              title: title ?? "",
+              height: chartHeight,
+              holeSize,
+              maxSegments,
+              valueNumericFormat: valueNumericFormat ?? "",
+              dataLabelsVisible,
+              dataLabelNumericFormat: dataLabelNumericFormat ?? "",
+              totalDataLabelsVisible,
+              otherLabel,
+              otherColor,
+              showLegend,
+              legendPosition,
+              legendTitle: legendTitle ?? "",
+              colorCategoricalOrder,
+              colorCategoricalMap,
+              colorField,
+              valueField,
+              instanceId,
+          }, resolved, donutChartAutoProps);
+          // Every category the data holds, in colorCategoricalOrder — the same order
+          // the draw effect keeps slices in, so the nth palette color lands on the
+          // same category whatever maxSegments is set to. The bucket never appears
+          // here: it is keyed by OTHER_KEY and takes otherColor, so it consumes no
+          // palette slot. Memoized — the aggregation walks the full dataset and
+          // resize re-renders continuously.
+          const orderedCategories = React.useMemo(() => data
+              ? orderCategories(sumByKey(data, colorField, valueField), colorCategoricalOrder)
+              : [], [data, valueField, colorField, colorCategoricalOrder]);
+          // Every category's color, not just the plotted ones: maxSegments decides how
+          // many slices render, never which colors are editable.
+          // Memoized on their inputs so the draw effect, which keys on them, runs
+          // when colors change and not on every unrelated render.
+          const selectionColors = React.useMemo(() => resolveSeriesColors({
+              dataKeys: orderedCategories,
+              overrides: colorCategoricalMap,
+              palette,
+          }), [orderedCategories, colorCategoricalMap, palette]);
+          const contextSeriesKeys = React.useMemo(() => orderedCategories.slice(0, MAX_COLOR_KEYS), [orderedCategories]);
+          const selectionSeriesColors = React.useMemo(() => Object.fromEntries(contextSeriesKeys.map(function (key) {
+              return [key, selectionColors.colorOf(key)];
+          })), [contextSeriesKeys, selectionColors]);
+          // The slice palette rides the emitter's standing context so every region
+          // click (title, legend) carries it — chart-level controls like Slice colors
+          // must stay populated whatever sub-element is selected.
+          const categoryOrders = React.useMemo(() => categoryOrderContext(data, {
+              colorCategoricalOrder: colorField,
+          }), [data, colorField]);
+          const emitEdit = useEditEmitter("DonutChart", {
+              data,
+              label: title,
+              instanceId,
+              codeDefinedKeys,
+              values: editValues,
+              context: {
+                  categoryOrders,
+                  seriesKeys: contextSeriesKeys,
+                  seriesColors: selectionSeriesColors,
+              },
+          });
+          const wrapperRef = React.useRef(null);
+          const renderRef = React.useRef(null);
+          const containerWidth = useContainerWidth(wrapperRef);
+          React.useEffect(
+          // eslint-disable-next-line max-lines-per-function -- chart effect; see above
+          function () {
+              if (!renderRef.current ||
+                  !data ||
+                  data.length === 0 ||
+                  containerWidth === 0)
+                  return;
+              const container = renderRef.current;
+              d3.select(container).selectAll("*").remove();
+              const width = containerWidth || 600;
+              // One row per category: rows sharing a category are summed, so
+              // duplicates never draw as separate arcs (the bucketing path already
+              // aggregated; this makes the unbucketed path match).
+              const totals = sumByKey(data, colorField, valueField);
+              const aggregated = Array.from(totals.entries()).map(function ([category, total,]) {
+                  const r = {};
+                  r[colorField] = category;
+                  r[valueField] = total;
+                  return r;
+              });
+              // Bucket overflow categories into a single "Other" slice. Which
+              // categories keep a slice is always decided by value, whatever
+              // colorCategoricalOrder then arranges them in.
+              const bucketed = bucketOtherCategories(aggregated, {
+                  valueField: valueField,
+                  colorField: colorField,
+                  maxSegments: maxSegments,
+              });
+              const plotData = bucketed != null ? bucketed : aggregated;
+              // Slice, palette and legend order all come from orderedCategories;
+              // the bucket sits last.
+              const orderIndex = new Map();
+              orderedCategories.forEach(function (k, i) {
+                  orderIndex.set(k, i);
+              });
+              const sliceOrder = function (d) {
+                  return d["__other"]
+                      ? Number.POSITIVE_INFINITY
+                      : (orderIndex.get(String(d[colorField])) ?? orderedCategories.length);
+              };
+              // DONUT rendering. Legend keys drive the footprint, so compute them
+              // before the margins that reserve room for the legend.
+              const plotted = new Set(plotData.map(function (d) {
+                  return String(d[colorField]);
+              }));
+              const legendKeys = orderedCategories.filter(function (k) {
+                  return plotted.has(k);
+              });
+              if (bucketed != null)
+                  legendKeys.push(OTHER_KEY);
+              const footprint = showLegend
+                  ? legendFootprint({
+                      position: legendPosition,
+                      keyCount: legendKeys.length,
+                      title: legendTitle,
+                      gap: 20,
+                  })
+                  : null;
+              const margin = {
+                  top: (title ? 32 : 12) + (footprint?.padTop ?? 0),
+                  right: footprint?.padRight ? footprint.padRight : 12,
+                  bottom: 12 + (footprint?.padBottom ?? 0),
+                  left: 12,
+              };
+              const innerWidth = width - margin.left - margin.right;
+              const innerHeight = chartHeight - margin.top - margin.bottom;
+              const radius = Math.min(innerWidth, innerHeight) / 2;
+              const outerRadius = radius;
+              const svg = d3
+                  .select(container)
+                  .append("svg")
+                  .attr("viewBox", "0 0 " + width + " " + chartHeight)
+                  .attr("width", "100%")
+                  .style("font-family", f)
+                  .style("overflow", "visible");
+              // Region wiring for the shared title primitive — spread into its opts.
+              // Slices are not their own region: a click on one falls through to the
+              // whole chart, whose Color control lists every slice.
+              function editOpts(region) {
+                  return {
+                      editable: subRegionActive,
+                      editHoverLabel: regionHoverLabel(region),
+                      onEditClick: function (ev) {
+                          emitEdit(region, ev);
+                      },
+                  };
+              }
+              chartTitle(svg, title, editOpts("title"));
+              const cx = margin.left + innerWidth / 2;
+              const cy = margin.top + innerHeight / 2;
+              const pieG = svg
+                  .append("g")
+                  .attr("transform", "translate(" + cx + "," + cy + ")");
+              // Pie layout in colorCategoricalOrder, "Other" always last
+              const pie = d3
+                  .pie()
+                  .value(function (d) {
+                  return +d[valueField];
+              })
+                  .sort(function (a, b) {
+                  return sliceOrder(a) - sliceOrder(b);
+              });
+              const arcs = pie(plotData);
+              const arcGen = d3
+                  .arc()
+                  .innerRadius(outerRadius * holeSize)
+                  .outerRadius(outerRadius);
+              const total = d3.sum(plotData, function (d) {
+                  return +d[valueField];
+              });
+              const formatValue = numberFormatter(valueNumericFormat, ",.2~f");
+              const formatShare = numberFormatter(dataLabelNumericFormat, ".0%");
+              const tooltip = createTooltip(container);
+              pieG
+                  .selectAll("path")
+                  .data(arcs)
+                  .join("path")
+                  .attr("d", arcGen)
+                  .attr("fill", function (d) {
+                  return d.data["__other"]
+                      ? otherColor
+                      : selectionColors.colorOf(String(d.data[colorField]));
+              })
+                  .attr("stroke", c.bg)
+                  .attr("stroke-width", 2)
+                  .on("mouseover", function (event, d) {
+                  const pct = total > 0 ? ((d.data[valueField] / total) * 100).toFixed(1) : "0.0";
+                  const rows = [
+                      { header: sliceLabel(String(d.data[colorField])) },
+                      {
+                          value: formatValue(+d.data[valueField]) + " (" + pct + "%)",
+                      },
+                  ];
+                  if (d.data["__other"]) {
+                      rows.push({ value: d.data["__otherCount"] + " categories" });
+                  }
+                  tooltip.html(buildTooltipHtml(rows)).style("opacity", 1);
+              })
+                  .on("mousemove", function (event) {
+                  positionTooltip(tooltip, event, container);
+              })
+                  .on("mouseout", function () {
+                  tooltip.style("opacity", 0);
+              });
+              // Share labels sit at each slice's centroid, in the background color
+              // for contrast against the fill. Thin slices and thin rings skip them.
+              if (dataLabelsVisible) {
+                  const ringPx = outerRadius * (1 - holeSize);
+                  pieG
+                      .selectAll(".slice-label")
+                      .data(arcs.filter(function (d) {
+                      return d.endAngle - d.startAngle >= 0.35 && ringPx >= 14;
+                  }))
+                      .join("text")
+                      .attr("transform", function (d) {
+                      const [x, y] = arcGen.centroid(d);
+                      return "translate(" + x + "," + y + ")";
+                  })
+                      .attr("dy", "0.35em")
+                      .attr("text-anchor", "middle")
+                      .style("font-size", "11px")
+                      .style("font-weight", 500)
+                      .style("fill", c.bg)
+                      .style("font-family", f)
+                      .text(function (d) {
+                      return total > 0 ? formatShare(+d.data[valueField] / total) : "";
+                  });
+              }
+              // The total sits in the hole, and only there: a pie, or a hole too
+              // small for the text, gets none.
+              if (totalDataLabelsVisible && outerRadius * holeSize >= 24) {
+                  pieG
+                      .append("text")
+                      .attr("dy", "0.35em")
+                      .attr("text-anchor", "middle")
+                      .style("font-size", "14px")
+                      .style("font-weight", 600)
+                      .style("fill", c.text)
+                      .style("font-family", f)
+                      .text(formatValue(total));
+              }
+              // Legend — when bucketed, list the plotted slices ("Other" last)
+              if (showLegend && footprint) {
+                  const place = legendPlacement({
+                      position: legendPosition,
+                      svgWidth: width,
+                      svgHeight: chartHeight,
+                      marginTop: margin.top,
+                      footprint: footprint,
+                  });
+                  legend(svg, legendKeys, {
+                      x: place.x,
+                      y: place.y,
+                      title: legendTitle,
+                      direction: legendPosition === "top" || legendPosition === "bottom"
+                          ? "row"
+                          : "column",
+                      getColor: function (k) {
+                          return k === OTHER_KEY ? otherColor : selectionColors.colorOf(k);
+                      },
+                      getLabel: sliceLabel,
+                      editable: subRegionActive,
+                      editHoverLabel: regionHoverLabel("legend"),
+                      onEditClick: function (_k, ev) {
+                          emitEdit("legend", ev);
+                      },
+                  });
+              }
+          }, [
+              chartHeight,
+              colorField,
+              c,
+              containerWidth,
+              data,
+              dataLabelNumericFormat,
+              dataLabelsVisible,
+              f,
+              holeSize,
+              legendPosition,
+              legendTitle,
+              maxSegments,
+              orderedCategories,
+              otherColor,
+              selectionColors,
+              sliceLabel,
+              showLegend,
+              valueField,
+              valueNumericFormat,
+              totalDataLabelsVisible,
+              title,
+              subRegionActive,
+              emitEdit,
+          ]);
+          return h(ChartShell, {
+              data: data,
+              filename: title || "donut-chart",
+              wrapperRef,
+              renderRef,
+              width: containerWidth,
+              height: chartHeight,
+              hasData: !!data && data.length > 0,
+              componentType: "DonutChart",
+              instanceId: instanceId,
+              codeDefinedKeys,
+              resolvedProps: editValues,
+              selectionContext: {
+                  categoryOrders,
+                  seriesKeys: contextSeriesKeys,
+                  seriesColors: selectionSeriesColors,
+              },
+          });
+      }
+      export default DonutChart;
   - path: components/KpiCard.js
     contents: |-
       /**
@@ -12211,6 +12836,11 @@ genAppFiles:
   - path: format.js
     contents: |
       // Shared formatters and constants for the loyalty story.
+      import { d3 } from "app/_data.js";
+
+      // Standard format for all financial / currency values across the app.
+      // Reuse this constant for chart value formats, data labels, tooltips, and inline text.
+      export const MONEY_FORMAT = "$.2s";
 
       export function fmtPct(v, digits) {
         if (v == null || isNaN(v)) return "--";
@@ -12218,13 +12848,19 @@ genAppFiles:
         return (v * 100).toFixed(d) + "%";
       }
 
+      const moneyFormatter = d3.format(MONEY_FORMAT);
+
       export function fmtMoney(v) {
         if (v == null || isNaN(v)) return "--";
-        const abs = Math.abs(v);
-        const sign = v < 0 ? "\u2212" : "";
-        if (abs >= 1e6) return sign + "$" + (abs / 1e6).toFixed(1) + "M";
-        if (abs >= 1e3) return sign + "$" + (abs / 1e3).toFixed(1) + "K";
-        return sign + "$" + abs.toFixed(0);
+        return moneyFormatter(v);
+      }
+
+      const money0Formatter = d3.format("$,.0f");
+
+      // Whole-dollar currency, no decimals (e.g. $1,234).
+      export function fmtMoney0(v) {
+        if (v == null || isNaN(v)) return "No loyal customers";
+        return money0Formatter(v);
       }
 
       export function fmtInt(v) {
